@@ -1,0 +1,22 @@
+{
+    "name": "serverless-vercel",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite --port 0.0.0.0 --host",
+        "vercel": "vercel dev",
+        "vercel-host": "vercel dev",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "vercel": "^28.16.15",
+        "vite": "^4.1.0"
+    },
+    "dependencies": {
+        "face-api.js": "^0.22.2",
+        "formidable": "^2.1.1",
+        "replicate": "^0.12.1"
+    }
+}

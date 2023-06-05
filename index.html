@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+        <link rel="stylesheet" href="css/main.css" />
+        <link rel="stylesheet" href="css/ui.css" />
+        <link rel="stylesheet" href="css/loader.css" />
+        <title>Vite App</title>
+    </head>
+    <body>
+        <div class="container">
+            <div class="home page">
+                <div class="logo" style="margin-top: 30px">
+                    <img
+                        src="/icons/fulcrum_logo.svg"
+                        alt=""
+                        style="width: 5em"
+                    />
+                </div>
+
+                <div class="home-screen-buttons">
+                    <div class="camera-button">
+                        <label for="upload-input" class="upload-btn">
+                            <img
+                                src="icons/Upload_Icon.svg"
+                                style="height: 28px"
+                                class="upload-button"
+                            />
+                            <!-- <span class="btn-text">+</span> -->
+                        </label>
+                        <input
+                            id="upload-input"
+                            type="file"
+                            accept="image/*"
+                            style="display: none"
+                        />
+                        <span
+                            style="
+                                margin-top: 6px;
+                                color: #8c8c8c;
+                                font-size: 0.8em;
+                            "
+                            >Upload</span
+                        >
+                    </div>
+
+                    <div class="camera-button">
+                        <label for="camera-input" class="upload-btn">
+                            <!-- <span class="btn-text">+</span> -->
+                            <img
+                                src="icons/Camera_Icon.svg"
+                                style="height: 28px"
+                                class="upload-button"
+                            />
+                        </label>
+                        <input
+                            id="camera-input"
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            style="display: none"
+                        />
+                        <span
+                            style="
+                                margin-top: 6px;
+                                color: #8c8c8c;
+                                font-size: 0.8em;
+                            "
+                            >Camera</span
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="result page">
+                <img class="maxvw" id="image-result" />
+
+                <div id="photo--input--container">
+                    <canvas id="image--canvas"></canvas>
+                </div>
+
+                <div class="bar end-child">
+                    <span class="cancel-button">Cancel</span>
+
+                    <img
+                        id="download-button"
+                        src="/icons/Download_Button.svg"
+                        alt=""
+                        style="
+                            height: 28px;
+                            transform: translate(-10px);
+                            align-self: flex-end;
+                        "
+                    />
+                    <span id="edit-button">Edit</span>
+                </div>
+            </div>
+
+            <div class="edit page">
+                <div class="popup-container">
+                    <div class="popup">
+                        <h1>Welcome to the Popup!</h1>
+                        <p>This is a sample popup message.</p>
+                    </div>
+                </div>
+                <img id="back-button" alt="" style="max-width: 100vw" />
+                <div class="bar end-child" id="edit-bar">
+                    <span class="cancel-button">Cancel</span>
+                    <img
+                        id="prompt-button"
+                        src="icons/Edit_Prompt.svg"
+                        alt=""
+                        style="height: 22px"
+                    />
+                    <img
+                        id="regenerate-button"
+                        src="icons/Regenerate_Button.svg"
+                        alt=""
+                        style="height: 28px; margin-top: -2px"
+                    />
+                    <span class="done-button">Done</span>
+                </div>
+
+                <div class="popup-container page">
+                    <div class="bar" id="popup-bar">
+                        <span class="cancel-button">Cancel</span>
+                        <span class="done-button">Done</span>
+                    </div>
+                    <textarea name="" id="prompt-text" cols="40" rows="10">
+A woman in her 30s looking surpised, mouth open, eyes slightly closed</textarea
+                    >
+                    <!-- <div class="popup-content"></div> -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const container = document.querySelector(".container");
+            for (const child of container.children) {
+                child.classList.toggle(
+                    "hidden",
+                    child !== container.firstElementChild
+                );
+            }
+        </script>
+        <script type="module" src="/main.js"></script>
+    </body>
+</html>

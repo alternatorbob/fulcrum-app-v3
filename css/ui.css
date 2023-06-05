@@ -1,0 +1,212 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+}
+
+.bar {
+    display: flex;
+    width: 84%;
+    height: 20px;
+    margin-top: 24px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.home-screen-buttons {
+    display: flex;
+    margin-top: auto;
+    margin-bottom: 120px;
+}
+
+.upload-btn {
+    display: flex;
+    width: 90px;
+    height: 90px;
+
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+    text-align: center;
+    align-self: center;
+
+    border: 0.75px solid #f5f5f5;
+    border-radius: 100px;
+    background: none;
+    color: #f5f5f5;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.hidden {
+    display: none;
+}
+
+.camera-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 130px;
+}
+
+.maxvw {
+    /* max-width: 100%; */
+    width: 100%;
+}
+
+.end-child {
+    /* margin: auto; */
+    position: absolute;
+    bottom: 24px;
+
+    /* margin-top: 20%; */
+    /* margin-top: 24px; */
+}
+
+.popup-container {
+    position: fixed;
+    bottom: -100%; /* Initially hidden below the viewport */
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0f0f0f;
+    transition: bottom 0.3s ease-in-out;
+}
+
+.popup-container.active {
+    bottom: 0; /* Slide up to fully visible position */
+}
+
+#popup-bar {
+    margin-top: 24px;
+}
+
+#prompt-text {
+    resize: none;
+    width: 85%;
+    padding: 0.8em;
+    border-radius: 2px;
+    margin-top: 20%;
+    position: fixed;
+
+    /* border: none; */
+    overflow: auto;
+    outline: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    background-color: #0f0f0f;
+    color: #f5f5f5;
+    font-family: "Diatype Regular";
+    font-size: 0.8em;
+}
+
+.myImage {
+    height: 100%;
+    width: 100%;
+}
+
+#image-result {
+    image-rendering: auto;
+    image-rendering: high-quality;
+    image-rendering: crisp-edges;
+}
+
+.result-canvas {
+    position: relative;
+    width: 100%;
+}
+
+.result-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+#image--canvas {
+    position: relative;
+    width: 100%;
+}
+
+#result--canvas {
+    z-index: 10;
+}
+
+#detections--canvas {
+    z-index: 100;
+}
+
+/* OLD */
+#photo--input--container {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.loader {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 6rem;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+.loader:before,
+.loader:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    animation: pulsOut 1.8s ease-in-out infinite;
+    filter: drop-shadow(0 0 1rem rgba(255, 255, 255, 0.75));
+}
+.loader:before {
+    width: 100%;
+    padding-bottom: 100%;
+    box-shadow: inset 0 0 0 1rem #fff;
+    animation-name: pulsIn;
+}
+.loader:after {
+    width: calc(100% - 2rem);
+    padding-bottom: calc(100% - 2rem);
+    box-shadow: 0 0 0 0 #fff;
+}
+
+@keyframes pulsIn {
+    0% {
+        box-shadow: inset 0 0 0 1rem #fff;
+        opacity: 1;
+    }
+    50%,
+    100% {
+        box-shadow: inset 0 0 0 0 #fff;
+        opacity: 0;
+    }
+}
+
+@keyframes pulsOut {
+    0%,
+    50% {
+        box-shadow: 0 0 0 0 #fff;
+        opacity: 0;
+    }
+    100% {
+        box-shadow: 0 0 0 1rem #fff;
+        opacity: 1;
+    }
+}
