@@ -1,11 +1,10 @@
 import * as faceapi from "face-api.js";
-import { CircleAnimation, Loader } from "./ui";
+import { CircleAnimation, Loader, activeView, switchView } from "./ui";
 import {
     createMaskCanvas,
     createCanvasLayers,
     adjustDetectionBoxes,
     invertColors,
-    updateResult,
     applyInvertFilterAndRandomSquares,
 } from "./drawUtils";
 import {
@@ -18,7 +17,11 @@ import {
 } from "./utils";
 import { inPaint } from "./replicate";
 import { getPrompt } from "./getPrompt";
+import { switchActiveView } from "../main";
 
+import { objectModule } from "./objectModule";
+
+let imageCanvas;
 export let detectionObjects = [];
 
 Promise.all([
@@ -34,7 +37,7 @@ function start() {
 
 export async function getDetections(img) {
     const image = await faceapi.bufferToImage(img);
-    const imageCanvas = document.querySelector("#image--canvas");
+    imageCanvas = document.querySelector("#image--canvas");
     const { width, height } = imageCanvas;
     const detectionsCanvas = createCanvasLayers(image, width, height);
     const displaySize = { width: width, height: height };
@@ -57,21 +60,6 @@ export async function getDetections(img) {
         const box = result.detection.box;
         const points = result.landmarks.positions;
 
-        // points.forEach((point) => {
-        //     // console.log(point);
-        //     const circleAnimation = new CircleAnimation(point._x, point._y);
-        //     circleAnimation.startAnimation();
-        // });
-
-        //draws face boxes
-        // faceapi.draw.drawDetections(detectionsCanvas, result);
-        //draws face landmarks
-        // faceapi.draw.drawFaceLandmarks(detectionsCanvas, result, {
-        //     drawLines: true,
-        // });
-
-        //nose = 27-30-35
-
         const mask = createMaskCanvas(image, width, height, points, index);
 
         detectionObjects.push({
@@ -85,75 +73,74 @@ export async function getDetections(img) {
             isShowing: { detection: true, result: true },
             id: index,
         });
-
-        /*
-        //brow left
-        //brow left
-        highlightPoints(detectionsCanvas, points[17]);
-        highlightPoints(detectionsCanvas, points[21]);
-
-        //brow right
-        highlightPoints(detectionsCanvas, points[22]);
-        highlightPoints(detectionsCanvas, points[26]);
-
-        //nose top
-        highlightPoints(detectionsCanvas, points[27]);
-        // highlightPoints(detectionsCanvas, points[35]);
-
-        //left eye outer
-        highlightPoints(detectionsCanvas, points[36]);
-        //left eye center
-        highlightPoints(detectionsCanvas, points[38]);
-        
-        //righ eye outer
-        highlightPoints(detectionsCanvas, points[45]);
-        //righ eye middle
-        highlightPoints(detectionsCanvas, points[44]);
-
-        //mouth left
-        highlightPoints(detectionsCanvas, points[60]);
-        //mouth right
-        highlightPoints(detectionsCanvas, points[64]);
-        //mout middle middle
-        highlightPoints(detectionsCanvas, points[66]);
-        //mouth middle bottom
-        highlightPoints(detectionsCanvas, points[57]);
-        */
     });
 
-    const renders = detectionObjects.map(async (object, index) => {
-        updateResult();
+    objectModule.setObjectValue(detectionObjects);
+    switchActiveView("detections");
+}
 
-        const size = 512;
-        const { _x, _y, _width, _height } = object.squareBox;
-        const canvas = resizeCanvas(
-            cropCanvas(imageCanvas, _x, _y, _width, _height),
-            size,
-            size
-        );
+export function processDetections(object) {
+    const size = 512;
+    const { _x, _y, _width, _height } = object.squareBox;
+    const canvas = resizeCanvas(
+        cropCanvas(imageCanvas, _x, _y, _width, _height),
+        size,
+        size
+    );
 
-        object.canvas = canvas;
-        object.mask = resizeCanvas(
-            cropCanvas(object.mask, _x, _y, _width, _height),
-            size,
-            size
-        );
+    object.canvas = canvas;
+    object.mask = resizeCanvas(
+        cropCanvas(object.mask, _x, _y, _width, _height),
+        size,
+        size
+    );
 
-        const promptDetails = { gender: object.gender, age: object.age };
-        let myPrompt = getPrompt(promptDetails);
-        object.myPrompt = myPrompt;
+    const promptDetails = { gender: object.gender, age: object.age };
+    let myPrompt = getPrompt(promptDetails);
+    object.myPrompt = myPrompt;
+}
 
-        const loader = new Loader();
-        loader.show();
+// const renders = detectionObjects.map(async (object, index) => {
+//     const size = 512;
+//     const { _x, _y, _width, _height } = object.squareBox;
+//     const canvas = resizeCanvas(
+//         cropCanvas(imageCanvas, _x, _y, _width, _height),
+//         size,
+//         size
+//     );
 
-        return await swapFace(canvas, object.mask, myPrompt).then(
-            (swappedFace) => {
-                object.result = swappedFace;
-                updateResult();
-                // loader.hide();
-            }
-        );
+//     object.canvas = canvas;
+//     object.mask = resizeCanvas(
+//         cropCanvas(object.mask, _x, _y, _width, _height),
+//         size,
+//         size
+//     );
+
+//     const promptDetails = { gender: object.gender, age: object.age };
+//     let myPrompt = getPrompt(promptDetails);
+//     object.myPrompt = myPrompt;
+
+//     return await swapFace(canvas, object.mask, myPrompt).then((swappedFace) => {
+//         object.result = swappedFace;
+//         updateResult();
+//         // loader.hide();
+//     });
+// });
+
+export async function swapFaceNEW(object) {
+    const loader = new Loader();
+    loader.show();
+
+    const { canvas, mask } = object;
+
+    let output;
+    let myLoader = await emulateLoader(10000, 500).then(() => {
+        output = invertColors(canvas);
     });
+
+    loader.hide();
+
+    return output;
 }
 
 export async function swapFace(canvas, mask, myPrompt) {

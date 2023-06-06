@@ -16,67 +16,35 @@ let resultCanvas, detectionsCanvas;
 export let activeObject;
 export let hiddenDetectionObjects = [];
 
+export async function drawDetectionBox(object) {
+    if (!object.isShowing.detection) return;
+
+    const { _x, _y, _width, _height } = object.detectionBox;
+    const img = new Image();
+    const photoContainer = document.querySelector("#photo--input--container");
+
+    img.onload = () => {
+        const newImage = document.createElement("img");
+        newImage.classList.add("detection-frame");
+        newImage.id = `frame-${object.id}`;
+
+        newImage.src = "icons/fulcrum_frame_new.svg";
+        newImage.style.zIndex = "999";
+        newImage.style.pointerEvents = "none";
+        newImage.style.position = "absolute";
+        newImage.style.left = `${_x}px`;
+        newImage.style.top = `${_y}px`;
+        newImage.style.width = `${_width}px`;
+        newImage.style.height = `${_height}px`;
+        photoContainer.appendChild(newImage);
+    };
+
+    img.src = "icons/fulcrum_frame_new.svg";
+}
+
 function clearCanvas(canvas) {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-export function updateResult(clear = false, regenerate = false) {
-    console.log("updateResult");
-    const resCtx = resultCanvas.getContext("2d");
-    const detCtx = detectionsCanvas.getContext("2d");
-
-    resCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
-    detCtx.clearRect(0, 0, detectionsCanvas.width, detectionsCanvas.height);
-
-    if (clear) return;
-
-    detectionObjects.forEach((object) => {
-        if (activeView == "result") {
-            if (
-                !object.isShowing.detection &&
-                !object.isShowing.result &&
-                !isInArray(hiddenDetectionObjects, object.id)
-            ) {
-                hiddenDetectionObjects.push(object);
-            }
-
-            if (object.isShowing.detection) {
-                drawDetectionBox(object);
-
-                if (object.result !== undefined) {
-                    drawResult(object);
-                }
-            }
-        } else if (activeView == "edit") {
-            if (!object.isShowing.detection && !object.isShowing.result) return;
-
-            drawResult(object);
-            detCtx.clearRect(
-                0,
-                0,
-                detectionsCanvas.width,
-                detectionsCanvas.height
-            );
-
-            if (!object.isShowing.detection) {
-                drawDetectionBox(object);
-                object.isShowing.detection = true;
-            }
-        }
-    });
-}
-
-function drawDetectionBox(object) {
-    let { _x, _y, _width, _height } = object.detectionBox;
-    const ctx = detectionsCanvas.getContext("2d");
-    let img = new Image();
-
-    img.onload = () => {
-        ctx.drawImage(img, _x, _y, _width, _height);
-    };
-
-    img.src = "icons/fulcrum_frame.svg";
 }
 
 export function drawResult(object) {
@@ -87,6 +55,23 @@ export function drawResult(object) {
 }
 
 function wasDetectionClicked(e) {
+    detectionObjects.forEach((object, index) => {
+        const { _x, _y, _width, _height } = object.detectionBox;
+        if (
+            e.offsetX > _x &&
+            e.offsetX < _x + _width &&
+            e.offsetY > _y &&
+            e.offsetY < _y + _height
+        ) {
+            console.log("was clicked");
+            return true;
+        } else {
+            return false;
+        }
+    });
+
+    return;
+
     if (!detectionObjects || detectionObjects.length === 0) {
         return;
     }
@@ -255,28 +240,6 @@ export function drawMask(canvas, points) {
 
     ctx.closePath();
     ctx.fill();
-
-    // ctx.ellipse(
-    //     points[66]._x,
-    //     points[66]._y,
-    //     mouthWidth,
-    //     mouthHeight,
-    //     0,
-    //     0,
-    //     2 * Math.PI
-    // );
-
-    // ctx.ellipse(
-    //     points[38]._x,
-    //     points[38]._y,
-    //     mouthWidth,
-    //     mouthHeight,
-    //     0,
-    //     0,
-    //     2 * Math.PI
-    // );
-
-    // ctx.stroke();
 }
 
 export function cropToSquare(canvas) {

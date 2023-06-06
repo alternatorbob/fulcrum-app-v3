@@ -1,5 +1,4 @@
-import { handleViewChange } from "../main";
-import { updateResult, activeObject, regenerateFace } from "./drawUtils";
+import { activeObject, regenerateFace } from "./drawUtils";
 import { onImageUpload } from "./handleImage";
 import { activeView, switchView, moveCanvasLayers } from "./ui";
 
@@ -8,10 +7,10 @@ export function attachListeners() {
     const inputElement = document.querySelector("#camera-input");
     inputElement.addEventListener("change", async (event) => {
         // imageResult = await handleImageUpload(event);
-        await onImageUpload(event);
-        switchView("result");
+        await onImageUpload(event).then(switchView("detections", true));
     });
 
+    /*
     //result
     const editButton = document.querySelector("#edit-button");
     const backButton = document.querySelector("#back-button");
@@ -85,4 +84,5 @@ export function attachListeners() {
     regenerateButton.addEventListener("click", () => {
         regenerateFace(activeObject);
     });
+    */
 }

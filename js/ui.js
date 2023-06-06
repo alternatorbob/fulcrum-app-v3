@@ -1,27 +1,27 @@
-import { handleViewChange } from "../main";
+import { switchActiveView } from "../main";
+
 // import "../css/loader.css";
 export let activeView = "home";
 
-export function switchView(destination) {
-    if (activeView == "edit-prompt") {
-        document.querySelector(".popup-container").classList.remove("active");
-    } else {
-        let viewSelector = document.querySelector(`.${activeView}`);
-        viewSelector.classList.add("hidden");
-        viewSelector = document.querySelector(`.${destination}`);
-        viewSelector.classList.remove("hidden");
-    }
-    activeView = destination;
-    handleViewChange();
-}
-
 export function moveCanvasLayers(destination) {
     const photoContainer = document.querySelector("#photo--input--container");
-    const containerParent = photoContainer.parentNode;
     const destinationDiv = document.querySelector(`.${destination}`);
 
     destinationDiv.appendChild(photoContainer);
-    // containerParent.removeChild(photoContainer);
+}
+
+export function switchView(view) {
+    document.querySelector(`.${activeView}`).classList.add("hidden");
+    activeView = view;
+    document.querySelector(`.${activeView}`).classList.remove("hidden");
+
+    // console.log("view: ", view);
+    // console.log("activeView: ", activeView);
+}
+
+export function clearInput(elementId) {
+    const inputElement = document.querySelector(`#${elementId}`);
+    inputElement.value = ""; // Set the value to an empty string
 }
 
 export class MessageDiv {

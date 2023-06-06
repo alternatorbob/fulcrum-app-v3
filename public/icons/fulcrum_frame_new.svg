@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 26.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 260 360" style="enable-background:new 0 0 260 360;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#FFD60A;stroke-width:1;stroke-miterlimit:10;}
+</style>
+<symbol  id="FULCRUM_x5F_detection-frame" viewBox="-123.5 -169.5 247.1 339">
+	<path vector-effect="non-scaling-stroke" class="st0" d="M48.6,167.4h3.5c38.4,0,69.4-31.1,69.4-69.4V67"/>
+	<path vector-effect="non-scaling-stroke" class="st0" d="M-48.6,167.5h-3.5c-38.4,0-69.4-31.1-69.4-69.4V67"/>
+	<path vector-effect="non-scaling-stroke" class="st0" d="M-48.6-167.4h-3.5c-38.4,0-69.4,31.1-69.4,69.4v31"/>
+	<path vector-effect="non-scaling-stroke" class="st0" d="M48.6-167.5h3.5c38.4,0,69.4,31.1,69.4,69.4v31"/>
+</symbol>
+<use xlink:href="#FULCRUM_x5F_detection-frame"  width="247.1" height="339" x="-123.5" y="-169.5" transform="matrix(1 0 0 -1 130 180)" style="overflow:visible;"/>
+</svg>
