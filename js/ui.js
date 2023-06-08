@@ -66,7 +66,7 @@ export class MessageDiv {
 
 export class Loader {
     constructor(text) {
-        this.text = "loading..";
+        this.text = "1/3";
         this.loaderElement = null;
     }
 
@@ -80,7 +80,17 @@ export class Loader {
         }
 
         const textNode = document.createTextNode(this.text);
-        loaderDiv.appendChild(textNode);
+        const textContainer = document.createElement("div");
+
+        textContainer.style.position = "absolute";
+        textContainer.style.zIndes = "1000";
+        textContainer.style.pointerEvents = "none";
+        textContainer.style.top = "65%";
+        textContainer.style.left = "65%";
+        textContainer.style.transform = "translate(-50%, -50%)";
+
+        textContainer.appendChild(textNode);
+        loaderDiv.appendChild(textContainer);
 
         this.loaderElement = loaderDiv;
 
@@ -88,12 +98,13 @@ export class Loader {
     }
 
     show() {
+        console.log("should show loader");
         if (!this.loaderElement) {
             this.loaderElement = this.generateHTML();
             document.body.appendChild(this.loaderElement);
         }
 
-        this.loaderElement.style.fontSize = "16px";
+        this.loaderElement.style.fontSize = "10px";
         this.loaderElement.style.opacity = "0";
         this.loaderElement.style.transform = "scale(0.6)";
         this.loaderElement.style.transition = "opacity 0.3s, transform 0.3s";

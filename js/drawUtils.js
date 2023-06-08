@@ -28,7 +28,7 @@ export async function drawDetectionBox(object) {
         frame.id = `frame-${object.id}`;
 
         frame.src = "icons/fulcrum_frame_new.svg";
-        frame.style.zIndex = "999";
+        frame.style.zIndex = "1000";
         frame.style.pointerEvents = "none";
         frame.style.position = "absolute";
         frame.style.left = `${_x}px`;

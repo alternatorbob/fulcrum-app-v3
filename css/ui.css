@@ -22,7 +22,7 @@
 .home-screen-buttons {
     display: flex;
     margin-top: auto;
-    margin-bottom: 120px;
+    margin-bottom: 80px;
 }
 
 .upload-btn {
@@ -55,7 +55,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 130px;
+    /* width: 130px; */
+    width: 38vw;
 }
 
 .maxvw {
