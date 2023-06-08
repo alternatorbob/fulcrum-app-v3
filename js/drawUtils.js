@@ -42,7 +42,7 @@ export async function drawDetectionBox(object) {
 }
 
 export function imageClick(e) {
-    // console.log(e);
+    console.log(e);
     // let val = wasDetectionClicked(e, activeView);
     // if (val.wasClicked) {
     //     updateVisibility(val.id, activeView);

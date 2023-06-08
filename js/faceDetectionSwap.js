@@ -17,7 +17,7 @@ import {
 } from "./utils";
 import { inPaint } from "./replicate";
 import { getPrompt } from "./getPrompt";
-import { switchActiveView, activeView } from "../main";
+import { switchActiveView } from "../main";
 
 import { objectModule } from "./objectModule";
 
@@ -75,7 +75,7 @@ export async function getDetections(img) {
         });
     });
 
-    objectModule.setObjectValue(detectionObjects);
+    objectModule.setValue(detectionObjects);
 }
 
 export function processDetections(object) {

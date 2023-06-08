@@ -1,23 +1,23 @@
 export const objectModule = (() => {
     let myObject = null;
 
-    function setObjectValue(newValue) {
+    function setValue(newValue) {
         myObject = newValue;
     }
 
-    function getObjectValue() {
+    function getValue() {
         return myObject;
     }
 
     // Expose only the necessary functions
     return {
-        setObjectValue,
-        getObjectValue,
+        setValue,
+        getValue,
     };
 })();
 
 export const viewModule = (() => {
-    let myView = null;
+    let myView = "home";
 
     function setValue(newValue) {
         myView = newValue;

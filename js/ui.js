@@ -3,7 +3,6 @@ import { switchActiveView } from "../main";
 // import "../css/loader.css";
 
 import { viewModule } from "./objectModule";
-import { activeView } from "../main";
 
 export function moveCanvasLayers(destination) {
     const photoContainer = document.querySelector("#photo--input--container");
@@ -13,17 +12,10 @@ export function moveCanvasLayers(destination) {
 }
 
 export function switchView(view) {
-    // let activeView = viewModule.getValue();
-    console.log(activeView);
-    console.log(
-        "element: ",
-        document.querySelector(`.home`).classList.add("hidden")
-    );
+    let activeView = viewModule.getValue();
     document.querySelector(`.${activeView}`).classList.add("hidden");
     activeView = view;
     document.querySelector(`.${activeView}`).classList.remove("hidden");
-    // console.log("view: ", view);
-    // console.log("activeView: ", activeView);
 }
 
 export function clearInput(elementId) {
@@ -132,36 +124,6 @@ export class Loader {
         }, 300);
     }
 }
-
-// export class Loader {
-//     constructor() {
-//         this.loaderDiv = document.createElement("div");
-//         this.loaderDiv.innerText = "Loading...";
-//         this.loaderDiv.style = `
-//         position: fixed;
-//         top: 0;
-//         left: 0;
-//         width: 100%;
-//         height: 100%;
-//         background-color: rgba(0, 0, 0, 0.5);
-//         display: flex;
-//         justify-content: center;
-//         align-items: center;
-//         z-index: 9999;
-//         color: white;
-//         font-size: 24px;
-//       `;
-//         document.body.appendChild(this.loaderDiv);
-//     }
-
-//     show() {
-//         this.loaderDiv.style.display = "flex";
-//     }
-
-//     hide() {
-//         this.loaderDiv.style.display = "none";
-//     }
-// }
 
 export class CircleAnimation {
     constructor(x, y) {

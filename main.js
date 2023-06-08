@@ -17,31 +17,35 @@ import {
 import { onImageUpload } from "./js/handleImage";
 import { Loader, clearInput, moveCanvasLayers, switchView } from "./js/ui";
 
-// export let activeView = viewModule.setValue("home");
-export let activeView = "home";
+let activeView = viewModule.getValue();
+let detectionObjects;
+
 let imageCanvas;
 attachListeners();
-switchActiveView("home");
 
-export async function switchActiveView(activeView) {
-    switchView(activeView);
+export async function switchActiveView() {
+    activeView = viewModule.getValue();
 
-    let detectionObjects = objectModule.getObjectValue();
     switch (activeView) {
         case "home":
             console.log(`Current View: ${activeView}`);
             clearInput("camera-input");
-            objectModule.setObjectValue("");
+            objectModule.setValue("");
             //clearCanvases
             break;
 
         case "detections":
             console.log(`Current View: ${activeView}`);
+            detectionObjects = objectModule.getValue();
+
             detectionObjects.forEach(async (object) => {
                 await drawDetectionBox(object);
             });
 
-            switchActiveView("result");
+            switchView("result");
+            viewModule.setValue("result");
+            switchActiveView();
+
             break;
 
         case "result":

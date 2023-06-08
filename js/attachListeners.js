@@ -13,8 +13,8 @@ export function attachListeners() {
         await onImageUpload(event);
     });
 
-    const imageCanvas = document.querySelector("#image--canvas");
-    imageCanvas.addEventListener("click", imageClick());
+    // const imageCanvas = document.querySelector("#image--canvas");
+    // imageCanvas.addEventListener("click", imageClick());
 
     //result
     const editButton = document.querySelector("#edit-button");

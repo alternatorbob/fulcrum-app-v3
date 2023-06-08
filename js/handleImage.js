@@ -1,6 +1,7 @@
-import { activeView, switchActiveView } from "../main";
+import { switchActiveView } from "../main";
 import { getDetections } from "./faceDetectionSwap";
-import { Loader } from "./ui";
+import { viewModule } from "./objectModule";
+import { Loader, switchView } from "./ui";
 
 export async function onImageUpload(e) {
     const file = e.target.files[0];
@@ -29,7 +30,9 @@ export async function onImageUpload(e) {
     if (file) {
         reader.readAsDataURL(file);
         await getDetections(file);
-        activeView
-        switchActiveView("detections");
+
+        switchView("detections");
+        viewModule.setValue("detections");
+        switchActiveView();
     }
 }
