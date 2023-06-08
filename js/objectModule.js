@@ -15,3 +15,21 @@ export const objectModule = (() => {
         getObjectValue,
     };
 })();
+
+export const viewModule = (() => {
+    let myView = null;
+
+    function setValue(newValue) {
+        myView = newValue;
+    }
+
+    function getValue() {
+        return myView;
+    }
+
+    // Expose only the necessary functions
+    return {
+        setValue,
+        getValue,
+    };
+})();

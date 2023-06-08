@@ -1,7 +1,9 @@
 import { switchActiveView } from "../main";
 
 // import "../css/loader.css";
-export let activeView = "home";
+
+import { viewModule } from "./objectModule";
+import { activeView } from "../main";
 
 export function moveCanvasLayers(destination) {
     const photoContainer = document.querySelector("#photo--input--container");
@@ -11,10 +13,15 @@ export function moveCanvasLayers(destination) {
 }
 
 export function switchView(view) {
+    // let activeView = viewModule.getValue();
+    console.log(activeView);
+    console.log(
+        "element: ",
+        document.querySelector(`.home`).classList.add("hidden")
+    );
     document.querySelector(`.${activeView}`).classList.add("hidden");
     activeView = view;
     document.querySelector(`.${activeView}`).classList.remove("hidden");
-
     // console.log("view: ", view);
     // console.log("activeView: ", activeView);
 }

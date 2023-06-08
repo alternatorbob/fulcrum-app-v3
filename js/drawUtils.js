@@ -7,7 +7,6 @@ import {
 } from "./utils";
 import { detectionObjects, swapFace } from "./faceDetectionSwap";
 
-import { activeView } from "./ui";
 // let pointIndexes = pushValues(17, 26).concat([
 //     45, 64, 55, 56, 57, 58, 59, 60, 36, 17,
 // ]);
@@ -24,22 +23,32 @@ export async function drawDetectionBox(object) {
     const photoContainer = document.querySelector("#photo--input--container");
 
     img.onload = () => {
-        const newImage = document.createElement("img");
-        newImage.classList.add("detection-frame");
-        newImage.id = `frame-${object.id}`;
+        const frame = document.createElement("img");
+        frame.classList.add("detection-frame");
+        frame.id = `frame-${object.id}`;
 
-        newImage.src = "icons/fulcrum_frame_new.svg";
-        newImage.style.zIndex = "999";
-        newImage.style.pointerEvents = "none";
-        newImage.style.position = "absolute";
-        newImage.style.left = `${_x}px`;
-        newImage.style.top = `${_y}px`;
-        newImage.style.width = `${_width}px`;
-        newImage.style.height = `${_height}px`;
-        photoContainer.appendChild(newImage);
+        frame.src = "icons/fulcrum_frame_new.svg";
+        frame.style.zIndex = "999";
+        frame.style.pointerEvents = "none";
+        frame.style.position = "absolute";
+        frame.style.left = `${_x}px`;
+        frame.style.top = `${_y}px`;
+        frame.style.width = `${_width}px`;
+        frame.style.height = `${_height}px`;
+        photoContainer.appendChild(frame);
     };
 
     img.src = "icons/fulcrum_frame_new.svg";
+}
+
+export function imageClick(e) {
+    // console.log(e);
+    // let val = wasDetectionClicked(e, activeView);
+    // if (val.wasClicked) {
+    //     updateVisibility(val.id, activeView);
+    //     // toggleVisibility(val.id);
+    //     // console.log(updateShowingValue(val.wasClicked, val.id));
+    // }
 }
 
 function clearCanvas(canvas) {
@@ -47,68 +56,80 @@ function clearCanvas(canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-export function drawResult(object) {
-    const { _x, _y, _width, _height } = object.squareBox;
-    const ctx = resultCanvas.getContext("2d");
-
-    ctx.drawImage(object.result, _x, _y, _width, _height);
-}
-
-function wasDetectionClicked(e) {
-    detectionObjects.forEach((object, index) => {
-        const { _x, _y, _width, _height } = object.detectionBox;
-        if (
-            e.offsetX > _x &&
-            e.offsetX < _x + _width &&
-            e.offsetY > _y &&
-            e.offsetY < _y + _height
-        ) {
-            console.log("was clicked");
-            return true;
-        } else {
-            return false;
-        }
-    });
-
-    return;
-
-    if (!detectionObjects || detectionObjects.length === 0) {
-        return;
+export function toggleVisibility(id, toggleResult, toggleDetection) {
+    if (!toggleResult) {
+        const result = document.querySelector(`#result-${id}`);
+        result.classList.toggle("hidden");
     }
 
-    detectionObjects.forEach((object, index) => {
+    if (!toggleDetection) {
+        const detection = document.querySelector(`#frame-${id}`);
+        detection.classList.toggle("hidden");
+    }
+}
+
+export function drawResult(object) {
+    const { _x, _y, _width, _height } = object.squareBox;
+    const photoContainer = document.querySelector("#photo--input--container");
+    // const resultCanvas = document.createElement("canvas");
+    const resultCanvas = object.result;
+    const ctx = resultCanvas.getContext("2d");
+    // ctx.drawImage(object.result, _x, _y, _width, _height);
+
+    resultCanvas.classList.add("result-canvas");
+    resultCanvas.id = `result-${object.id}`;
+    resultCanvas.style.position = "absolute";
+    resultCanvas.style.zIndex = "999";
+    resultCanvas.style.pointerEvents = "none";
+    resultCanvas.style.left = `${_x}px`;
+    resultCanvas.style.top = `${_y}px`;
+    resultCanvas.style.width = `${_width}px`;
+    resultCanvas.style.height = `${_height}px`;
+    photoContainer.appendChild(resultCanvas);
+    // document.body.appendChild(object.result);
+
+    return resultCanvas;
+}
+
+export function wasDetectionClicked(e) {
+    for (let i = 0; i < detectionObjects.length; i++) {
+        const object = detectionObjects[i];
         const { _x, _y, _width, _height } = object.detectionBox;
+        console.log(object);
         if (
             e.offsetX > _x &&
             e.offsetX < _x + _width &&
             e.offsetY > _y &&
             e.offsetY < _y + _height
         ) {
-            if (activeView == "result") {
-                if (isInArray(hiddenDetectionObjects, object.id))
-                    removeFromArray(hiddenDetectionObjects, object.id);
-                object.isShowing.detection = !object.isShowing.detection;
-                object.isShowing.result = !object.isShowing.result;
-                //if it is in the hiddenDecteionObjects array we remove it
-
-                updateResult();
-            } else if (
-                activeView == "edit" &&
-                !isInArray(hiddenDetectionObjects, object.id)
-            ) {
-                //check if obj
-                console.log(object.id);
-                object.isShowing.detection = !object.isShowing.detection;
-                updateResult();
-            }
-            // console.log("TOUCH BOX");
-            activeObject = detectionObjects[object.id];
-            // console.log(activeObject);
-            return true;
+            return { wasClicked: true, id: object.id };
         }
-    });
-
+    }
     return false;
+}
+
+export function updateVisibility(id, activeView) {
+    for (let i = 0; i < detectionObjects.length; i++) {
+        const object = detectionObjects[i];
+        let { detection, result } = object.isShowing;
+
+        if (object.id === id) {
+            switch (activeView) {
+                case "result":
+                    console.log("updateVisibility: result");
+                    detection = !detection;
+                    result = !result;
+
+                    break;
+
+                case "edit":
+                    console.log("updateVisibility: edit");
+                    detection = !detection;
+                    break;
+            }
+            toggleVisibility(object.id, detection, result);
+        }
+    }
 }
 
 export async function regenerateFace(object) {
@@ -258,14 +279,14 @@ export function invertColors(canvas) {
     invertedCanvas.height = height;
 
     // Apply the 'invert' filter to invert the colors
-    // invertedContext.filter = "invert(100%)";
+    invertedContext.filter = "invert(100%)";
 
     // Draw the original canvas onto the inverted canvas with the filter applied
     invertedContext.drawImage(canvas, 0, 0);
 
     // Add randomly sized and positioned semi-transparent blue rectangles
     const numRectangles = Math.floor(Math.random() * 15) + 5; // Random number of rectangles between 1 and 10
-    const maxRectangleSize = 30; // Maximum size of each rectangle
+    const maxRectangleSize = 60; // Maximum size of each rectangle
 
     for (let i = 0; i < numRectangles; i++) {
         const rectangleSize = Math.floor(Math.random() * maxRectangleSize) + 1; // Random size between 1 and maxRectangleSize

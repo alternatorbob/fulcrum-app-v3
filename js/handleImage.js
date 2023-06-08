@@ -1,3 +1,4 @@
+import { activeView, switchActiveView } from "../main";
 import { getDetections } from "./faceDetectionSwap";
 import { Loader } from "./ui";
 
@@ -27,6 +28,8 @@ export async function onImageUpload(e) {
     };
     if (file) {
         reader.readAsDataURL(file);
-        getDetections(file);
+        await getDetections(file);
+        activeView
+        switchActiveView("detections");
     }
 }

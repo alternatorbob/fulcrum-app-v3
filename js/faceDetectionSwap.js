@@ -1,5 +1,5 @@
 import * as faceapi from "face-api.js";
-import { CircleAnimation, Loader, activeView, switchView } from "./ui";
+import { CircleAnimation, Loader, switchView } from "./ui";
 import {
     createMaskCanvas,
     createCanvasLayers,
@@ -17,7 +17,7 @@ import {
 } from "./utils";
 import { inPaint } from "./replicate";
 import { getPrompt } from "./getPrompt";
-import { switchActiveView } from "../main";
+import { switchActiveView, activeView } from "../main";
 
 import { objectModule } from "./objectModule";
 
@@ -39,10 +39,10 @@ export async function getDetections(img) {
     const image = await faceapi.bufferToImage(img);
     imageCanvas = document.querySelector("#image--canvas");
     const { width, height } = imageCanvas;
-    const detectionsCanvas = createCanvasLayers(image, width, height);
+    // const detectionsCanvas = createCanvasLayers(image, width, height);
     const displaySize = { width: width, height: height };
 
-    faceapi.matchDimensions(detectionsCanvas, displaySize);
+    // faceapi.matchDimensions(imageCanvas, displaySize);
 
     let detections = await faceapi
         .detectAllFaces(image)
@@ -76,7 +76,6 @@ export async function getDetections(img) {
     });
 
     objectModule.setObjectValue(detectionObjects);
-    switchActiveView("detections");
 }
 
 export function processDetections(object) {
