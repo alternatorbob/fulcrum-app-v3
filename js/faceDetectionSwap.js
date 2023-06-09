@@ -21,6 +21,8 @@ import { switchActiveView } from "../main";
 
 import { objectModule } from "./objectModule";
 
+import config from "../config";
+
 let imageCanvas;
 export let detectionObjects = [];
 
@@ -36,6 +38,7 @@ function start() {
 }
 
 export async function getDetections(img) {
+    console.log(img);
     const image = await faceapi.bufferToImage(img);
     imageCanvas = document.querySelector("#image--canvas");
     const { width, height } = imageCanvas;
@@ -133,7 +136,7 @@ export async function swapFaceNEW(object) {
     const { canvas, mask } = object;
 
     let output;
-    let myLoader = await emulateLoader(10000, 500).then(() => {
+    let myLoader = await emulateLoader(10, 500).then(() => {
         output = invertColors(canvas);
     });
 
@@ -150,22 +153,27 @@ export async function swapFace(canvas, mask, myPrompt) {
     }
 
     // const output = invertColors(canvas);
-    let output;
-    let loader = await emulateLoader(10000, 500).then(() => {
-        output = invertColors(canvas);
-    });
 
-    // const output = applyInvertFilterAndRandomSquares(canvas);
+    console.log(emulateLoader, config.simulate);
+    if (config.simulate) {
 
-    // const url = await inPaint(canvas64, mask64, myPrompt, (value) => {
-    //     const lines = value.split("\n").filter(Boolean);
-    //     const lastLine = lines[lines.length - 1];
-    //     let number = 0;
-    //     if (lastLine) number = Number(lastLine.split("%")[0]);
-    //     // console.log("number: ", number);
-    //     console.log("value: ", value);
-    // });
+        await emulateLoader(100, 500)
+        const output = invertColors(canvas);
+        return output;
 
-    // return loadImage(url);
-    return output;
+    } else {
+
+        const output = applyInvertFilterAndRandomSquares(canvas);
+        const url = await inPaint(canvas64, mask64, myPrompt, (value) => {
+            const lines = value.split("\n").filter(Boolean);
+            const lastLine = lines[lines.length - 1];
+            let number = 0;
+            if (lastLine) number = Number(lastLine.split("%")[0]);
+            // console.log("number: ", number);
+            console.log("value: ", value);
+        });
+
+        return loadImage(url);
+    }
+
 }

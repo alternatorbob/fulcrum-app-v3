@@ -3,11 +3,15 @@ import { getDetections } from "./faceDetectionSwap";
 import { viewModule } from "./objectModule";
 import { Loader, switchView } from "./ui";
 
-export async function onImageUpload(e) {
-    const file = e.target.files[0];
+export async function onImageUpload(file) {
+    
+    
     const reader = new FileReader();
     const loader = new Loader("uploading");
+
     loader.show();
+    
+    console.log(loader.loaderElement);
 
     reader.onload = (e) => {
         const img = new Image();
@@ -27,6 +31,7 @@ export async function onImageUpload(e) {
         };
         img.src = e.target.result;
     };
+
     if (file) {
         reader.readAsDataURL(file);
         await getDetections(file);

@@ -2,18 +2,32 @@ import { activeObject, imageClick, regenerateFace } from "./drawUtils";
 import { onImageUpload } from "./handleImage";
 import { moveCanvasLayers, switchView } from "./ui";
 import { switchActiveView } from "../main";
+import { delay } from "./utils";
+import { srcToFile } from "./utils";
 
 export function attachListeners() {
 
-    const inputElements = document.querySelector('.upload')
+    // const inputElements = document.querySelectorAll('.upload')
     //home
-    const inputElement = document.querySelector("#camera-input");
-    inputElement.addEventListener("change", async (event) => {
-        //was like this before, now loader shows on homescreen
-        // await onImageUpload(event).then(switchView("detections"));
+    const inputElements = [document.querySelector("#upload-input"), document.querySelector("#camera-input")];
 
-        await onImageUpload(event);
+    inputElements.forEach((inputElement) => {
+
+        inputElement.addEventListener("change", async (event) => {
+            const file = event.target.files[0];
+            await onImageUpload(file);
+        });
+
     });
+    //was like this before, now loader shows on homescreen
+    // await onImageUpload(event).then(switchView("detections"));
+
+    // create file object from image
+    //  cc  delay(0).then(emulateUpload)
+    async function emulateUpload() {
+        const file = await srcToFile('./test-images/vertical.jpg', 'image.jpg', 'image/jpeg')
+        onImageUpload(file)
+    }
 
     // const imageCanvas = document.querySelector("#image--canvas");
     // imageCanvas.addEventListener("click", imageClick());
