@@ -6,7 +6,7 @@ import { Loader, switchView } from "./ui";
 export async function onImageUpload(e) {
     const file = e.target.files[0];
     const reader = new FileReader();
-    const loader = new Loader();
+    const loader = new Loader("uploading");
     loader.show();
 
     reader.onload = (e) => {

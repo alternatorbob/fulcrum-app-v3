@@ -4,6 +4,8 @@ import { moveCanvasLayers, switchView } from "./ui";
 import { switchActiveView } from "../main";
 
 export function attachListeners() {
+
+    const inputElements = document.querySelector('.upload')
     //home
     const inputElement = document.querySelector("#camera-input");
     inputElement.addEventListener("change", async (event) => {

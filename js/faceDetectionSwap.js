@@ -127,7 +127,7 @@ export function processDetections(object) {
 // });
 
 export async function swapFaceNEW(object) {
-    const loader = new Loader();
+    const loader = new Loader("swapping");
     loader.show();
 
     const { canvas, mask } = object;

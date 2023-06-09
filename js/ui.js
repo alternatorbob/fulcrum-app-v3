@@ -66,7 +66,7 @@ export class MessageDiv {
 
 export class Loader {
     constructor(text) {
-        this.text = "1/3";
+        this.text = text;
         this.loaderElement = null;
     }
 
