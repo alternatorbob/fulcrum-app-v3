@@ -1,100 +1,47 @@
-import { objectModule, viewModule } from "./js/objectModule";
-import { attachListeners } from "./js/attachListeners";
-import {
-    drawDetectionBox,
-    drawResult,
-    imageClick,
-    toggleVisibility,
-    updateVisibility,
-    wasDetectionClicked,
-} from "./js/drawUtils";
-import {
-    getDetections,
-    processDetections,
-    swapFace,
-    swapFaceNEW,
-} from "./js/faceDetectionSwap";
-import { onImageUpload } from "./js/handleImage";
-import { Loader, clearInput, moveCanvasLayers, switchView } from "./js/ui";
+import "./main.css";
+import { delay } from "./js/utils";
+import { Photo } from "./js/photo";
+import { changeState, states, getState } from "./js/state.js";
+import { updatePixelRatio } from "./js/updatePixelRatio";
 
-let activeView = viewModule.getValue();
-let detectionObjects;
+const app = document.querySelector("#app");
+updatePixelRatio();
 
-let imageCanvas;
-attachListeners();
+switchActiveView();
 
-export async function switchActiveView() {
-    activeView = viewModule.getValue();
-
+export async function switchActiveView(activeView = getState()) {
     switch (activeView) {
         case "home":
             console.log(`Current View: ${activeView}`);
-            clearInput("camera-input");
-            objectModule.setValue("");
-            //clearCanvases
+            await delay(3000);
+            changeState(states.DETECTIONS);
+            switchActiveView();
             break;
 
         case "detections":
             console.log(`Current View: ${activeView}`);
-            detectionObjects = objectModule.getValue();
+            const photoApp = new Photo(app);
+            photoApp.getFaces("./vertical.jpg").then(async () => {
+                await delay(2000);
+                changeState(states.RESULT);
+                switchActiveView();
 
-            detectionObjects.forEach(async (object) => {
-                await drawDetectionBox(object);
+                // photoApp.setEditMode(getState());
             });
-
-            switchView("result");
-            viewModule.setValue("result");
-            switchActiveView();
-
-            break;
 
         case "result":
             console.log(`Current View: ${activeView}`);
-            moveCanvasLayers("result");
 
-            detectionObjects.forEach(async (object) => {
-                processDetections(object);
-                object.result = await swapFaceNEW(object);
-                drawResult(object);
-            });
-
-            /*
-            // let val = wasDetectionClicked(e, activeView);
-            // if (val.wasClicked) {
-            //     updateVisibility(val.id, activeView);
-            //     // toggleVisibility(val.id);
-            //     // console.log(updateShowingValue(val.wasClicked, val.id));
-            // }
-
-            // const resultCanvases = document.querySelectorAll(".result-canvas");
-            // resultCanvases.forEach((canvas) => {
-            //     console.log(canvas);
-            //     canvas.addEventListener("click", () => {
-            //         console.log("clickity click");
-            //     });
-            // });
-            */
             break;
 
         case "edit":
             console.log(`Current View: ${activeView}`);
-            moveCanvasLayers("edit");
-            // imageCanvas.removeEventListener("click", imageClick(activeView));
-
-            // detectionObjects.forEach((object) => {
-            //     let { detection, result } = object.isShowing;
-            //     console.log("detection", detection);
-            //     console.log("result", result);
-            //     // detection = false;
-            //     toggleVisibility(object.id, detection, result);
-            // });
-
-            // console.log(hiddenDetectionObjects);
 
             break;
 
         case "edit-prompt":
             console.log(`Current View: ${activeView}`);
+
             break;
     }
 }
