@@ -1,11 +1,10 @@
 import "./css/main.css";
 import * as faceapi from "face-api.js";
-import { delay } from "./js/utils";
+import { delay, updatePixelRatio } from "./js/utils";
 import { Photo } from "./js/internal";
 import { NavBar } from "./js/internal";
 import { HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
-import { updatePixelRatio } from "./js/updatePixelRatio";
 
 Promise.all([
     faceapi.nets.faceRecognitionNet.loadFromUri("/models"),

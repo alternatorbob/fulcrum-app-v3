@@ -53,7 +53,6 @@ export class Photo {
 
         this.faces.forEach((face) => {
             face.render(this.c);
-            console.log(face);
         });
     }
 }

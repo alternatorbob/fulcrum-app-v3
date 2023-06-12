@@ -1,3 +1,4 @@
+import { adjustDetectionBoxes } from "./utils";
 import { delay } from "./utils";
 
 function randomColor() {
@@ -8,10 +9,14 @@ function randomColor() {
 
 export class Face {
     constructor(bounds, parent) {
-        console.log(parent);
         this.cvBounds = bounds;
         this.elem = document.createElement("div");
         this.elem.className = "face";
+
+        this.detectionBox = new Image();
+        this.detectionBox.src = "icons/fulcrum_frame_new.svg";
+
+        this.result;
 
         this.color = randomColor();
         this.editMode = false;
@@ -58,7 +63,6 @@ export class Face {
         const xRatio = parentWidth / canvas.width;
         const yRatio = parentHeight / canvas.height;
 
-        // console.log(bounds.x, canvas.width);
         x *= xRatio;
         y *= yRatio;
         const widthScaled = width * xRatio;
@@ -77,6 +81,8 @@ export class Face {
         elem.classList.toggle("enabled", this.enabled);
         elem.classList.toggle("edit", this.editMode);
         elem.style.cssText = `top: ${bounds.y}px; left: ${bounds.x}px; width: ${bounds.width}px; height: ${bounds.height}px`;
+
+        return bounds;
     }
 
     refreshCanvas() {}
@@ -88,6 +94,50 @@ export class Face {
             const { x, y, width, height } = this.cvBounds;
             ctx.fillStyle = this.color;
             ctx.fillRect(x, y, width, height);
+        }
+    }
+
+    render(ctx) {
+        this.updateCSS(this.elem);
+        // const { _x, _y, _width, _height } = adjustDetectionBoxes(
+        //     this.updateCSS(this.elem)
+        // )[0];
+
+        // adjustDetectionBoxes(this.updateCSS(this.elem)[0]);
+        // const bounds = this.canvasToViewport(
+        //     this.cvBounds,
+        //     this.canvas,
+        //     this.parent
+        // );
+        // console.log(bounds);
+
+        if (this.enabled) {
+            const { x, y, width, height } = this.cvBounds;
+
+            const bounds = this.canvasToViewport(
+                this.cvBounds,
+                this.canvas,
+                this.parent
+            );
+            console.log("bounds: ", bounds);
+
+            const detBox = adjustDetectionBoxes(bounds)[0];
+            console.log("detBox: ", detBox);
+
+            this.detectionBox.width = bounds.width;
+            this.detectionBox.height = bounds.height;
+            this.elem.appendChild(this.detectionBox);
+            // ctx.fillStyle = this.color;
+            // ctx.fillRect(x, y, width, height);
+            // ctx.drawImage(
+            //     this.detectionBox,
+            //     detBox.x,
+            //     detBox.y,
+            //     detBox.width,
+            //     detBox.height
+            // );
+        } else {
+            this.elem.removeChild(this.detectionBox);
         }
     }
 }

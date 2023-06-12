@@ -160,3 +160,43 @@ export function srcToFile(src, fileName, mimeType) {
             return new File([buf], fileName, { type: mimeType });
         });
 }
+
+export function adjustDetectionBoxes(box) {
+    const scaleFactor = 1.5;
+    let detectionBox = { ...box };
+    let squareBox = { ...box };
+
+    detectionBox.x -= detectionBox.width / (scaleFactor * 2.66);
+    detectionBox.y -= (detectionBox.width / (scaleFactor * 2.66)) * 1.4;
+    detectionBox.width *= scaleFactor;
+    detectionBox.height *= scaleFactor;
+
+    //squareBox
+    squareBox.x -= squareBox.width / 3;
+    squareBox.y -= squareBox.width / 4;
+
+    squareBox.width > squareBox.height
+        ? (squareBox.height = squareBox.width)
+        : (squareBox.width = squareBox.height);
+
+    squareBox.width *= 1.3;
+    squareBox.height *= 1.3;
+
+    return [detectionBox, squareBox];
+}
+
+let remove = null;
+
+export const updatePixelRatio = () => {
+    if (remove != null) {
+        remove();
+    }
+    let mqString = `(resolution: ${window.devicePixelRatio}dppx)`;
+    let media = matchMedia(mqString);
+    media.addEventListener("change", updatePixelRatio);
+    remove = function () {
+        media.removeEventListener("change", updatePixelRatio);
+    };
+
+    console.log("devicePixelRatio: " + window.devicePixelRatio);
+};
