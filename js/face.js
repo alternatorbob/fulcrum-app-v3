@@ -8,6 +8,7 @@ function randomColor() {
 
 export class Face {
     constructor(bounds, parent) {
+        console.log(parent);
         this.cvBounds = bounds;
         this.elem = document.createElement("div");
         this.elem.className = "face";
@@ -57,7 +58,7 @@ export class Face {
         const xRatio = parentWidth / canvas.width;
         const yRatio = parentHeight / canvas.height;
 
-        console.log(bounds.x, canvas.width);
+        // console.log(bounds.x, canvas.width);
         x *= xRatio;
         y *= yRatio;
         const widthScaled = width * xRatio;
@@ -89,4 +90,30 @@ export class Face {
             ctx.fillRect(x, y, width, height);
         }
     }
+}
+
+export async function drawDetectionBox(object) {
+    if (!object.isShowing.detection) return;
+
+    const { _x, _y, _width, _height } = object.detectionBox;
+    const img = new Image();
+    const photoContainer = document.querySelector("#photo--input--container");
+
+    img.onload = () => {
+        const frame = document.createElement("img");
+        frame.classList.add("detection-frame");
+        frame.id = `frame-${object.id}`;
+
+        frame.src = "icons/fulcrum_frame_new.svg";
+        frame.style.zIndex = "1000";
+        frame.style.pointerEvents = "none";
+        frame.style.position = "absolute";
+        frame.style.left = `${_x}px`;
+        frame.style.top = `${_y}px`;
+        frame.style.width = `${_width}px`;
+        frame.style.height = `${_height}px`;
+        photoContainer.appendChild(frame);
+    };
+
+    img.src = "icons/fulcrum_frame_new.svg";
 }

@@ -211,3 +211,10 @@
         opacity: 1;
     }
 }
+
+.canvasContainer {
+    width: 100%;
+    display: inline-flex;
+    position: relative;
+    overflow: hidden;
+}

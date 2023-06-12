@@ -1,11 +1,21 @@
+import * as faceapi from "face-api.js";
 import { loadImage, random } from "./utils";
-import { Face } from "./face";
+import { Face } from "./internal";
 
 export class Photo {
     constructor(parent) {
+        const photoView = document.createElement("div");
+        photoView.classList.add("photo");
+        parent.appendChild(photoView);
+
+        const canvasContainer = document.createElement("div");
+        canvasContainer.classList.add("canvasContainer");
+        photoView.appendChild(canvasContainer);
+
         const canvas = document.createElement("canvas");
-        parent.appendChild(canvas);
-        parent.className = "photoContainer";
+        canvas.id = "photo-canvas";
+        canvasContainer.appendChild(canvas);
+        // parent.className = "photoContainer";
         this.parent = parent;
         this.faces = [];
         this.cv = canvas;
@@ -18,7 +28,6 @@ export class Photo {
         this.img = await loadImage(src);
 
         const facesBounds = await getFaces(this.img);
-        console.log(facesBounds);
 
         this.faces = facesBounds.map((bounds) => {
             const face = new Face(bounds, this.parent);
@@ -44,20 +53,30 @@ export class Photo {
 
         this.faces.forEach((face) => {
             face.render(this.c);
+            console.log(face);
         });
     }
 }
 
 async function getFaces(img) {
     const faces = [];
-    const { width, height } = img;
 
-    for (let i = 0; i < 3; i++) {
+    let detections = await faceapi
+        .detectAllFaces(img)
+        .withFaceLandmarks()
+        .withAgeAndGender();
+
+    detections = detections.filter(({ detection }) => {
+        return detection._score > 0.6;
+    });
+
+    for (const det of detections) {
+        const { _x, _y, _width, _height } = det.alignedRect.box;
         const bounds = {
-            x: random(0, width),
-            y: random(0, height),
-            width: random(500, 1000),
-            height: random(500, 1000),
+            x: _x,
+            y: _y,
+            width: _width,
+            height: _height,
         };
         faces.push(bounds);
     }
