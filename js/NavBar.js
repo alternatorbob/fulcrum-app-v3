@@ -20,13 +20,12 @@ export class NavBar {
         this.updateButtons(); // Update the buttons initially
         this.applyStyles(); // Apply styles within the constructor
 
-        this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
+        // this.handleEditButtonClick = this.handleEditButtonClick.bind(this);
         this.attachListeners();
     }
 
     updateButtons() {
         this.navBarElement.innerHTML = ""; // Clear previous buttons
-
         const currentState = getState();
 
         switch (currentState) {
@@ -77,75 +76,67 @@ export class NavBar {
     attachListeners(currentState) {
         switch (currentState) {
             case "result":
-                this.navBarElement
+                const cancelButton = this.navBarElement
                     .querySelector("#cancel-button")
-                    .addEventListener("click", this.handleCancelButtonClick);
+                    .addEventListener("click", () => {
+                        console.log("Cancel button clicked");
+                        changeState(states.HOME);
+                        this.switchActiveView(); // Trigger the switchActiveView callback
+                        this.updateButtons();
+                    });
 
-                this.navBarElement
+                const downloadButton = this.navBarElement
                     .querySelector("#download-button")
-                    .addEventListener("click", this.handleDownloadButtonClick);
+                    .addEventListener("click", () => {
+                        console.log("Download button clicked");
+                    });
 
-                this.navBarElement
+                const editButton = this.navBarElement
                     .querySelector("#edit-button")
-                    .addEventListener("click", this.handleEditButtonClick);
+                    .addEventListener("click", () => {
+                        console.log("Edit button clicked");
+                        // console.log(this.switchActiveView);
+                        changeState(states.EDIT);
+                        this.switchActiveView(); // Trigger the switchActiveView callback
+                        this.updateButtons();
+
+                        // Dispatch the toggleEnable event through the EventBus
+                        eventBus.dispatchEvent("toggleEnable");
+                    });
                 break;
 
             case "edit":
-                const promptButton =
-                    this.navBarElement.querySelector("#prompt-button");
-                promptButton.addEventListener(
-                    "click",
-                    this.handlePromptButtonClick
-                );
+                const cancelButton2 = this.navBarElement
+                    .querySelector("#cancel-button")
+                    .addEventListener("click", () => {
+                        changeState(states.RESULT);
+                        this.switchActiveView();
+                        this.updateButtons();
+                    });
 
-                const regenerateButton =
-                    this.navBarElement.querySelector("#regenerate-button");
+                const promptButton = this.navBarElement
+                    .querySelector("#prompt-button")
+                    .addEventListener("click", () => {
+                        console.log("Prompt button clicked");
+                    });
 
-                regenerateButton.addEventListener(
-                    "click",
-                    this.handleRegenerateButtonClick
-                );
+                const regenerateButton = this.navBarElement
+                    .querySelector("#regenerate-button")
+                    .addEventListener("click", () => {
+                        console.log("Regenerate button clicked");
+                    });
 
-                const doneButtons =
-                    this.navBarElement.querySelectorAll(".done-button");
-                doneButtons.forEach((doneButton) => {
-                    doneButton.addEventListener(
-                        "click",
-                        this.handleDoneButtonClick
-                    );
-                });
+                const doneButton = this.navBarElement
+                    .querySelector("#done-button")
+                    .addEventListener("click", () => {
+                        console.log("Done button clicked");
+                        changeState(states.RESULT);
+                        this.switchActiveView();
+                        this.updateButtons();
+                    });
+
                 break;
         }
-    }
-
-    handleCancelButtonClick(event) {
-        console.log("Cancel button clicked");
-    }
-
-    handleDoneButtonClick(event) {
-        console.log("Done button clicked");
-    }
-
-    handleEditButtonClick(event) {
-        console.log("Edit button clicked");
-        // console.log(this.switchActiveView);
-        changeState(states.EDIT);
-        this.switchActiveView(); // Trigger the switchActiveView callback
-
-        // Dispatch the toggleEnable event through the EventBus
-        eventBus.dispatchEvent("toggleEnable");
-    }
-
-    handleDownloadButtonClick(event) {
-        console.log("Download button clicked");
-    }
-
-    handlePromptButtonClick(event) {
-        console.log("Prompt button clicked");
-    }
-
-    handleRegenerateButtonClick(event) {
-        console.log("Regenerate button clicked");
     }
 
     applyStyles() {
@@ -167,10 +158,9 @@ export class NavBar {
 
         // Apply the centering property to the second button
         if (buttons.length >= 2) {
-            buttons[1].style.marginLeft = "auto";
-            buttons[1].style.marginRight = "auto";
-
-            buttons[1].style.transform = "translateX(-15px)";
+            // buttons[1].style.marginLeft = "auto";
+            // buttons[1].style.marginRight = "auto";
+            // buttons[1].style.transform = "translateY(-15px)";
         }
     }
 }

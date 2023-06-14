@@ -53,7 +53,7 @@ export async function switchActiveView(activeState = getState()) {
 
         case "result":
             console.log(`Current View: ${activeState}`);
-            await photoApp.swapFaces();
+            // await photoApp.swapFaces();
 
             //call faceSwap api
             navBar.updateButtons();

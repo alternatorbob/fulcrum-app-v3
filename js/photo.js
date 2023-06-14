@@ -54,7 +54,6 @@ export class Photo {
         // const facesBounds = await getDetections(this.img);
 
         this.faces = faces.map((bounds) => {
-            console.log(bounds);
             const face = new Face(bounds, this.photoView);
             //crop square from og canvas to face.squareCanvas
             face.squareCanvas = face.cropToSquare(this.cv, bounds);
