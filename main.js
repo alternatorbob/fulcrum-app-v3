@@ -6,6 +6,8 @@ import { NavBar } from "./js/internal";
 import { HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
 
+updatePixelRatio();
+
 Promise.all([
     faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
     faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
@@ -26,8 +28,6 @@ const navBar = new NavBar(switchActiveView);
 const photoDiv = document.querySelector(".photo");
 const homeDiv = document.querySelector(".home");
 
-updatePixelRatio();
-
 export async function switchActiveView(activeState = getState()) {
     switch (activeState) {
         case "home":
@@ -46,17 +46,16 @@ export async function switchActiveView(activeState = getState()) {
             photoDiv.classList.remove("hidden");
             homeDiv.style.display = "none";
 
-            photoApp.getFaces("./vertical.jpg").then(async () => {
-                // await delay(2000);
-                changeState(states.RESULT);
-                switchActiveView();
-
-                // photoApp.setEditMode(getState());
-            });
+            await photoApp.getFaces("./vertical.jpg");
+            changeState(states.RESULT);
+            switchActiveView();
             break;
 
         case "result":
             console.log(`Current View: ${activeState}`);
+            await photoApp.swapFaces();
+
+            //call faceSwap api
             navBar.updateButtons();
 
             break;

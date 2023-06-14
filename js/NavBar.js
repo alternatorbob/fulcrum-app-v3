@@ -1,4 +1,5 @@
 import { changeState, states, getState } from "./state.js";
+import eventBus from "./EventBus.js";
 
 // export class NavBar {
 //     constructor() {
@@ -130,6 +131,9 @@ export class NavBar {
         // console.log(this.switchActiveView);
         changeState(states.EDIT);
         this.switchActiveView(); // Trigger the switchActiveView callback
+
+        // Dispatch the toggleEnable event through the EventBus
+        eventBus.dispatchEvent("toggleEnable");
     }
 
     handleDownloadButtonClick(event) {

@@ -1,5 +1,8 @@
 import { adjustDetectionBoxes } from "./utils";
+import eventBus from "./EventBus.js";
+import { Loader } from "./UI";
 import { delay } from "./utils";
+import { getState } from "./state";
 
 function randomColor() {
     return (
@@ -8,20 +11,55 @@ function randomColor() {
 }
 
 export class Face {
+    static instanceCount = 0;
     constructor(bounds, parent) {
+        Face.instanceCount++;
+
         this.cvBounds = bounds;
+
         this.elem = document.createElement("div");
         this.elem.className = "face";
+        this.elem.id = `face-${Face.instanceCount}`;
+
+        this.squareCanvas;
 
         this.detectionBox = new Image();
         this.detectionBox.src = "icons/fulcrum_frame_new.svg";
 
-        this.result;
+        this.result = null;
 
         this.color = randomColor();
         this.editMode = false;
 
-        this.elem.onclick = async () => {
+        this.enabled = true;
+        this.isShowing = { detection: true, result: true };
+
+        this.parent = parent;
+        this.canvas = this.parent.querySelector("canvas");
+        this.parent.appendChild(this.elem);
+
+        this.elem.onclick = async (e) => {
+            console.log(e.target.parentNode);
+
+            switch (getState()) {
+                case "result":
+                    this.isShowing.detection = !this.isShowing.detection;
+                    this.isShowing.result = !this.isShowing.result;
+                    this.refreshCanvas();
+                    break;
+                case "edit":
+                    this.hide(this.detectionBox);
+                    this.isShowing.detection = !this.isShowing.detection;
+                    this.refreshCanvas();
+                    break;
+            }
+
+            if (getState() === "edit") {
+                this.hide(this.detectionBox);
+                this.isShowing.detection = !this.isShowing.detection;
+                this.refreshCanvas();
+            }
+
             const enabled = this.toggleEnabled();
 
             if (enabled) {
@@ -29,12 +67,9 @@ export class Face {
             }
         };
 
-        this.enabled = true;
-
-        this.parent = parent;
-        this.canvas = this.parent.querySelector("canvas");
-
-        this.parent.appendChild(this.elem);
+        eventBus.addEventListener("toggleEnable", () => {
+            this.toggleEnabled();
+        });
     }
 
     async regenerate() {
@@ -47,6 +82,7 @@ export class Face {
     toggleEnabled() {
         this.enabled = !this.enabled;
         this.refreshCanvas();
+
         return this.enabled;
     }
 
@@ -71,6 +107,33 @@ export class Face {
         return { x, y, width: widthScaled, height: heightScaled };
     }
 
+    cropToSquare(canvas, bounds) {
+        const { x, y, width, height } = bounds;
+
+        const size = Math.max(width, height);
+
+        const squareCanvas = document.createElement("canvas");
+        squareCanvas.width = size;
+        squareCanvas.height = size;
+
+        const ctx = squareCanvas.getContext("2d");
+        ctx.drawImage(
+            canvas,
+            x,
+            y,
+            width,
+            height,
+            (size - width) / 2,
+            (size - height) / 2,
+            width,
+            height
+        );
+
+        // document.body.appendChild(canvas);
+
+        return squareCanvas;
+    }
+
     updateCSS(elem) {
         const bounds = this.canvasToViewport(
             this.cvBounds,
@@ -87,57 +150,37 @@ export class Face {
 
     refreshCanvas() {}
 
-    render(ctx) {
-        this.updateCSS(this.elem);
+    hide(div) {
+        div.classList.add("hidden");
+    }
 
-        if (this.enabled) {
-            const { x, y, width, height } = this.cvBounds;
-            ctx.fillStyle = this.color;
-            ctx.fillRect(x, y, width, height);
-        }
+    show(div) {
+        div.classList.remove("hidden");
     }
 
     render(ctx) {
-        this.updateCSS(this.elem);
-        // const { _x, _y, _width, _height } = adjustDetectionBoxes(
-        //     this.updateCSS(this.elem)
-        // )[0];
+        if (getState() === "edit") {
+            if (this.isShowing.detection) {
+                this.hide(this.detectionBox);
+            } else {
+                this.show(this.detectionBox);
+            }
+        }
 
-        // adjustDetectionBoxes(this.updateCSS(this.elem)[0]);
-        // const bounds = this.canvasToViewport(
-        //     this.cvBounds,
-        //     this.canvas,
-        //     this.parent
-        // );
-        // console.log(bounds);
+        this.updateCSS(this.elem);
+
+        const scaledBounds = this.canvasToViewport(
+            this.cvBounds,
+            this.canvas,
+            this.parent
+        );
 
         if (this.enabled) {
             const { x, y, width, height } = this.cvBounds;
 
-            const bounds = this.canvasToViewport(
-                this.cvBounds,
-                this.canvas,
-                this.parent
-            );
-            console.log("bounds: ", bounds);
-
-            const detBox = adjustDetectionBoxes(bounds)[0];
-            console.log("detBox: ", detBox);
-
-            this.detectionBox.width = bounds.width;
-            this.detectionBox.height = bounds.height;
+            this.detectionBox.width = scaledBounds.width;
+            this.detectionBox.height = scaledBounds.height;
             this.elem.appendChild(this.detectionBox);
-            // ctx.fillStyle = this.color;
-            // ctx.fillRect(x, y, width, height);
-            // ctx.drawImage(
-            //     this.detectionBox,
-            //     detBox.x,
-            //     detBox.y,
-            //     detBox.width,
-            //     detBox.height
-            // );
-        } else {
-            this.elem.removeChild(this.detectionBox);
         }
     }
 }

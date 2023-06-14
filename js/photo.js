@@ -1,16 +1,18 @@
 import * as faceapi from "face-api.js";
-import { loadImage, random } from "./utils";
+import { emulateLoader, loadImage, random } from "./utils";
 import { Face } from "./internal";
+import { Loader } from "./UI";
+import { canvasToViewport, invertColors } from "./drawUtils";
 
 export class Photo {
     constructor(parent) {
-        const photoView = document.createElement("div");
-        photoView.classList.add("photo");
-        parent.appendChild(photoView);
+        this.photoView = document.createElement("div");
+        this.photoView.classList.add("photo");
+        parent.appendChild(this.photoView);
 
         const canvasContainer = document.createElement("div");
         canvasContainer.classList.add("canvasContainer");
-        photoView.appendChild(canvasContainer);
+        this.photoView.appendChild(canvasContainer);
 
         const canvas = document.createElement("canvas");
         canvas.id = "photo-canvas";
@@ -26,11 +28,39 @@ export class Photo {
 
     async getFaces(src) {
         this.img = await loadImage(src);
+        const faces = [];
 
-        const facesBounds = await getFaces(this.img);
+        let detections = await faceapi
+            .detectAllFaces(this.img)
+            .withFaceLandmarks()
+            .withAgeAndGender();
 
-        this.faces = facesBounds.map((bounds) => {
-            const face = new Face(bounds, this.parent);
+        detections = detections.filter(({ detection }) => {
+            return detection._score > 0.6;
+        });
+
+        for (const det of detections) {
+            const { _x, _y, _width, _height } = det.alignedRect.box;
+            const bounds = {
+                x: _x,
+                y: _y,
+                width: _width,
+                height: _height,
+            };
+
+            faces.push(bounds);
+        }
+
+        // const facesBounds = await getDetections(this.img);
+
+        this.faces = faces.map((bounds) => {
+            console.log(bounds);
+            const face = new Face(bounds, this.photoView);
+            //crop square from og canvas to face.squareCanvas
+            face.squareCanvas = face.cropToSquare(this.cv, bounds);
+            // console.log("face.scaledBounds: ", face.scaledBounds);
+
+            // console.log("face.squareCanvas", face.squareCanvas);
 
             face.refreshCanvas = () => this.render();
 
@@ -38,6 +68,28 @@ export class Photo {
         });
 
         this.setEditMode(this.editMode);
+    }
+
+    async swapFaces() {
+        const loader = new Loader("swapping");
+        loader.show();
+        let output;
+
+        this.faces.forEach(async (face) => {
+            await emulateLoader(10, 500);
+
+            output = invertColors(face.squareCanvas);
+            console.log("output: ", output);
+            document.body.appendChild(output);
+        });
+
+        loader.hide();
+
+        return output;
+    }
+
+    getResult(faces) {
+        console.log(faces);
     }
 
     setEditMode(enabled) {
@@ -55,30 +107,4 @@ export class Photo {
             face.render(this.c);
         });
     }
-}
-
-async function getFaces(img) {
-    const faces = [];
-
-    let detections = await faceapi
-        .detectAllFaces(img)
-        .withFaceLandmarks()
-        .withAgeAndGender();
-
-    detections = detections.filter(({ detection }) => {
-        return detection._score > 0.6;
-    });
-
-    for (const det of detections) {
-        const { _x, _y, _width, _height } = det.alignedRect.box;
-        const bounds = {
-            x: _x,
-            y: _y,
-            width: _width,
-            height: _height,
-        };
-        faces.push(bounds);
-    }
-
-    return faces;
 }
