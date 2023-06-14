@@ -19,7 +19,7 @@ Promise.all([
 });
 
 const app = document.querySelector("#app");
-const homePage = new HomePage();
+const homePage = new HomePage(switchActiveView);
 homePage.createDivs();
 
 const photoApp = new Photo(app);
@@ -36,8 +36,8 @@ export async function switchActiveView(activeState = getState()) {
             photoDiv.classList.add("hidden");
 
             // await delay(3000);
-            changeState(states.DETECTIONS);
-            switchActiveView();
+            // changeState(states.DETECTIONS);
+            // switchActiveView();
 
             break;
 
@@ -46,7 +46,7 @@ export async function switchActiveView(activeState = getState()) {
             photoDiv.classList.remove("hidden");
             homeDiv.style.display = "none";
 
-            await photoApp.getFaces("./vertical.jpg");
+            // await photoApp.getFaces("./vertical.jpg");
             changeState(states.RESULT);
             switchActiveView();
             break;

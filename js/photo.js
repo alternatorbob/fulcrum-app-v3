@@ -3,6 +3,7 @@ import { emulateLoader, loadImage, random } from "./utils";
 import { Face } from "./internal";
 import { Loader } from "./UI";
 import { canvasToViewport, invertColors } from "./drawUtils";
+import eventBus from "./EventBus";
 
 export class Photo {
     constructor(parent) {
@@ -24,10 +25,14 @@ export class Photo {
         this.c = canvas.getContext("2d");
         this.img = null;
         this.editMode = false;
+
+        eventBus.subscribe("fileSelected", this.getFaces.bind(this));
     }
 
     async getFaces(src) {
-        this.img = await loadImage(src);
+        // this.img = await loadImage(src);
+        this.img = src;
+
         const faces = [];
 
         let detections = await faceapi

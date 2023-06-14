@@ -25,6 +25,20 @@ class EventBus {
             listeners.forEach((listener) => listener(data));
         }
     }
+
+    subscribe(eventType, handler) {
+        if (!this.eventListeners[eventType]) {
+            this.eventListeners[eventType] = [];
+        }
+        this.eventListeners[eventType].push(handler);
+    }
+
+    publish(eventType, data) {
+        if (!this.eventListeners[eventType]) {
+            return;
+        }
+        this.eventListeners[eventType].forEach((handler) => handler(data));
+    }
 }
 
 // Create a shared instance of the EventBus

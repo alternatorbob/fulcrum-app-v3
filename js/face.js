@@ -184,29 +184,3 @@ export class Face {
         }
     }
 }
-
-export async function drawDetectionBox(object) {
-    if (!object.isShowing.detection) return;
-
-    const { _x, _y, _width, _height } = object.detectionBox;
-    const img = new Image();
-    const photoContainer = document.querySelector("#photo--input--container");
-
-    img.onload = () => {
-        const frame = document.createElement("img");
-        frame.classList.add("detection-frame");
-        frame.id = `frame-${object.id}`;
-
-        frame.src = "icons/fulcrum_frame_new.svg";
-        frame.style.zIndex = "1000";
-        frame.style.pointerEvents = "none";
-        frame.style.position = "absolute";
-        frame.style.left = `${_x}px`;
-        frame.style.top = `${_y}px`;
-        frame.style.width = `${_width}px`;
-        frame.style.height = `${_height}px`;
-        photoContainer.appendChild(frame);
-    };
-
-    img.src = "icons/fulcrum_frame_new.svg";
-}

@@ -1,3 +1,7 @@
+import { states } from "./state";
+import { changeState } from "./state";
+import eventBus from "./EventBus";
+
 class DivComponent {
     constructor(tagName, classNames = [], attributes = {}) {
         this.element = document.createElement(tagName);
@@ -34,8 +38,9 @@ class SpanComponent extends DivComponent {
 }
 
 export class HomePage {
-    constructor() {
+    constructor(switchActiveViewCallback) {
         this.container = null;
+        this.switchActiveView = switchActiveViewCallback;
     }
 
     createDivs() {
@@ -127,6 +132,8 @@ export class HomePage {
         // Append the created divs to the page body
         this.container = document.querySelector("#app");
         this.container.appendChild(homePageDiv.element);
+
+        this.attachChangeListeners();
     }
 
     emptyInputFiles() {
@@ -142,27 +149,42 @@ export class HomePage {
         }
     }
 
-    inputChangeListeners() {
+    attachChangeListeners() {
         const uploadInput = document.getElementById("upload-input");
         const cameraInput = document.getElementById("camera-input");
 
+        [uploadInput, cameraInput].forEach((input) => {
+            input.addEventListener("change", async (event) => {
+                const file = event.target.files[0];
+                const myImg = await onImageUpload(file);
+                eventBus.publish("fileSelected", myImg);
+
+                changeState(states.DETECTIONS);
+                this.switchActiveView();
+            });
+        });
+
         const onImageUpload = async (file) => {
-            // Perform the necessary actions when an image is uploaded
-            // Example: Handle the file upload and processing
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader(); // Create a FileReader object
+
+                // Set up the FileReader onload event
+                reader.onload = function (e) {
+                    const imgSrc = e.target.result; // Get the base64-encoded image data
+                    const img = document.createElement("img"); // Create a new img element
+                    img.src = imgSrc; // Set the src attribute of the img tag
+
+                    resolve(img); // Return the img tag
+                };
+
+                // Set up the FileReader onerror event
+                reader.onerror = function (e) {
+                    reject(e); // Reject the promise if an error occurs
+                };
+
+                // Read the uploaded file as a data URL
+                reader.readAsDataURL(file);
+            });
         };
-
-        if (uploadInput) {
-            uploadInput.addEventListener("change", async (event) => {
-                const file = event.target.files[0];
-                await onImageUpload(file);
-            });
-        }
-
-        if (cameraInput) {
-            cameraInput.addEventListener("change", async (event) => {
-                const file = event.target.files[0];
-                await onImageUpload(file);
-            });
-        }
     }
 }
