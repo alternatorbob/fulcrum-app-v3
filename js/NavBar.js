@@ -158,9 +158,9 @@ export class NavBar {
 
         // Apply the centering property to the second button
         if (buttons.length >= 2) {
-            // buttons[1].style.marginLeft = "auto";
-            // buttons[1].style.marginRight = "auto";
-            // buttons[1].style.transform = "translateY(-15px)";
+            buttons[1].style.marginLeft = "auto";
+            buttons[1].style.marginRight = "auto";
+            buttons[1].style.transform = "translateY(-15px)";
         }
     }
 }

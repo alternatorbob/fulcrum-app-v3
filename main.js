@@ -5,6 +5,7 @@ import { Photo } from "./js/internal";
 import { NavBar } from "./js/internal";
 import { HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
+import { FullscreenPopup, IntroTransition } from "./js/UI";
 
 updatePixelRatio();
 
@@ -24,6 +25,9 @@ homePage.createDivs();
 
 const photoApp = new Photo(app);
 const navBar = new NavBar(switchActiveView);
+
+// const popup = new FullscreenPopup(switchActiveView);
+// popup.open();
 
 const photoDiv = document.querySelector(".photo");
 const homeDiv = document.querySelector(".home");
