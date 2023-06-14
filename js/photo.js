@@ -59,12 +59,14 @@ export class Photo {
         // const facesBounds = await getDetections(this.img);
 
         this.faces = faces.map((bounds) => {
-            const face = new Face(bounds, this.photoView);
+            const face = new Face(bounds, this.photoView, this);
             //crop square from og canvas to face.squareCanvas
-            face.squareCanvas = face.cropToSquare(this.cv, bounds);
+            // face.squareCanvas = face.cropToSquare(this.cv, bounds);
             // console.log("face.scaledBounds: ", face.scaledBounds);
 
             // console.log("face.squareCanvas", face.squareCanvas);
+
+            const output = this.swapFaces(face);
 
             face.refreshCanvas = () => this.render();
 
@@ -74,18 +76,27 @@ export class Photo {
         this.setEditMode(this.editMode);
     }
 
-    async swapFaces() {
+    swapFaces(faceObject) {
         const loader = new Loader("swapping");
         loader.show();
-        let output;
+        // let output = null;
+        console.log(this.c.canvas);
+        const test = document.createElement("canvas");
+        const ctx = test.getContext("2d");
+        ctx.fillRect(0, 0, test.width, test.height);
 
-        this.faces.forEach(async (face) => {
-            await emulateLoader(10, 500);
+        //fix canvas bounds, too wide and too much left
 
-            output = invertColors(face.squareCanvas);
-            console.log("output: ", output);
-            document.body.appendChild(output);
-        });
+        const squareCanvas = faceObject.cropToSquare(test, faceObject.cvBounds);
+
+        let output = invertColors(squareCanvas);
+        faceObject.setFakeFace(output);
+        // this.faces.forEach( (face) => {
+        //     console.log("FACE",face)
+        //     // await emulateLoader(10, 500);
+        //     output = invertColors(face.squareCanvas);
+        //     faceObject.setFakeFace(output);
+        // });
 
         loader.hide();
 
@@ -100,6 +111,12 @@ export class Photo {
         this.editMode = enabled;
         this.faces.forEach((face) => face.setEditMode(this.editMode));
         this.render();
+    }
+
+    resetBoundingBoxes() {
+        this.faces.forEach((face) => {
+            face.isShowing.detection = false;
+        });
     }
 
     render() {

@@ -12,8 +12,11 @@ function randomColor() {
 
 export class Face {
     static instanceCount = 0;
-    constructor(bounds, parent) {
+    constructor(bounds, parent, scope) {
         Face.instanceCount++;
+        this.scope = scope;
+        this.parent = parent;
+        this.canvas = this.parent.querySelector("canvas");
 
         this.cvBounds = bounds;
 
@@ -24,23 +27,37 @@ export class Face {
         this.squareCanvas;
 
         this.detectionBox = new Image();
+        this.detectionBox.onload = () => {
+            const scaledBounds = this.canvasToViewport(
+                this.cvBounds,
+                this.canvas,
+                this.parent
+            );
+
+            this.elem.style.cssText = `top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
+
+            const { x, y, width, height } = this.cvBounds;
+            this.detectionBox.width = scaledBounds.width;
+            this.detectionBox.height = scaledBounds.height;
+            this.elem.appendChild(this.detectionBox);
+        };
+
         this.detectionBox.src = "icons/fulcrum_frame_new.svg";
 
         this.result = null;
 
-        this.color = randomColor();
+        // this.color = randomColor();
         this.editMode = false;
 
         this.enabled = true;
+        //update result ishowing after api call
         this.isShowing = { detection: true, result: true };
 
-        this.parent = parent;
-        this.canvas = this.parent.querySelector("canvas");
+        // this.parent = parent;
+        // this.canvas = this.parent.querySelector("canvas");
         this.parent.appendChild(this.elem);
 
         this.elem.onclick = async (e) => {
-            console.log(e.target.parentNode);
-
             switch (getState()) {
                 case "result":
                     this.isShowing.detection = !this.isShowing.detection;
@@ -48,23 +65,23 @@ export class Face {
                     this.refreshCanvas();
                     break;
                 case "edit":
-                    this.hide(this.detectionBox);
+                    this.scope.resetBoundingBoxes();
                     this.isShowing.detection = !this.isShowing.detection;
                     this.refreshCanvas();
                     break;
             }
 
-            if (getState() === "edit") {
-                this.hide(this.detectionBox);
-                this.isShowing.detection = !this.isShowing.detection;
-                this.refreshCanvas();
-            }
+            // if (getState() === "edit") {
+            //     this.hide(this.detectionBox);
+            //     this.isShowing.detection = !this.isShowing.detection;
+            //     this.refreshCanvas();
+            // }
 
-            const enabled = this.toggleEnabled();
+            // const enabled = this.toggleEnabled();
 
-            if (enabled) {
-                await this.regenerate();
-            }
+            // if (enabled) {
+            //     await this.regenerate();
+            // }
         };
 
         eventBus.addEventListener("toggleEnable", () => {
@@ -88,6 +105,23 @@ export class Face {
 
     setEditMode(enabled) {
         this.editMode = enabled;
+        this.isShowing = { detection: enabled ? false : true, result: true };
+    }
+
+    setFakeFace(canvas) {
+        console.log("SET FAKE FACE", canvas);
+        //your fake face is the canvas
+        const scaledBounds = this.canvasToViewport(
+            this.cvBounds,
+            canvas,
+            this.parent
+        );
+        canvas.style.cssText = `position:absolute;top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
+
+        const { x, y, width, height } = this.cvBounds;
+        canvas.width = scaledBounds.width;
+        canvas.height = scaledBounds.height;
+        this.elem.appendChild(canvas);
     }
 
     canvasToViewport(bounds, canvas, parent) {
@@ -107,12 +141,17 @@ export class Face {
         return { x, y, width: widthScaled, height: heightScaled };
     }
 
+    autoSquare() {
+        return this.cropToSquare(this.canvas, this.cvBounds);
+    }
+
     cropToSquare(canvas, bounds) {
         const { x, y, width, height } = bounds;
 
         const size = Math.max(width, height);
 
         const squareCanvas = document.createElement("canvas");
+
         squareCanvas.width = size;
         squareCanvas.height = size;
 
@@ -159,28 +198,37 @@ export class Face {
     }
 
     render(ctx) {
-        if (getState() === "edit") {
-            if (this.isShowing.detection) {
-                this.hide(this.detectionBox);
-            } else {
-                this.show(this.detectionBox);
-            }
+        if (!this.isShowing.detection) {
+            this.hide(this.detectionBox);
+        } else {
+            this.show(this.detectionBox);
         }
 
-        this.updateCSS(this.elem);
-
-        const scaledBounds = this.canvasToViewport(
-            this.cvBounds,
-            this.canvas,
-            this.parent
-        );
-
-        if (this.enabled) {
-            const { x, y, width, height } = this.cvBounds;
-
-            this.detectionBox.width = scaledBounds.width;
-            this.detectionBox.height = scaledBounds.height;
-            this.elem.appendChild(this.detectionBox);
+        if (!this.isShowing.result) {
         }
+
+        // if (getState() === "edit") {
+        //     if (this.isShowing.detection) {
+        //         this.hide(this.detectionBox);
+        //     } else {
+        //         this.show(this.detectionBox);
+        //     }
+        // }
+
+        // this.updateCSS(this.elem);
+
+        // const scaledBounds = this.canvasToViewport(
+        //     this.cvBounds,
+        //     this.canvas,
+        //     this.parent
+        // );
+
+        // if (this.enabled) {
+        //     const { x, y, width, height } = this.cvBounds;
+
+        //     this.detectionBox.width = scaledBounds.width;
+        //     this.detectionBox.height = scaledBounds.height;
+        //     this.elem.appendChild(this.detectionBox);
+        // }
     }
 }

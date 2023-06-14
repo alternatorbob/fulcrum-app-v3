@@ -84,3 +84,7 @@ canvas {
 .active {
     display: flex;
 }
+
+.face img.hidden{
+    display:none;
+}

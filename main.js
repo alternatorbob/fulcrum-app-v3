@@ -21,6 +21,8 @@ Promise.all([
 
 const app = document.querySelector("#app");
 const homePage = new HomePage(switchActiveView);
+
+console.log("createDivs")
 homePage.createDivs();
 
 const photoApp = new Photo(app);
@@ -59,6 +61,7 @@ export async function switchActiveView(activeState = getState()) {
             console.log(`Current View: ${activeState}`);
             // await photoApp.swapFaces();
 
+            photoApp.setEditMode(false);
             //call faceSwap api
             navBar.updateButtons();
 
@@ -66,6 +69,7 @@ export async function switchActiveView(activeState = getState()) {
 
         case "edit":
             console.log(`Current View: ${activeState}`);
+            photoApp.setEditMode(true);
 
             break;
 
