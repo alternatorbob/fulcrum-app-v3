@@ -1,9 +1,9 @@
 import * as faceapi from "face-api.js";
-import { emulateLoader, loadImage, random } from "./utils";
-import { Face } from "./internal";
-import { Loader } from "./UI";
-import { canvasToViewport, invertColors } from "./drawUtils";
-import eventBus from "./EventBus";
+import eventBus from "../EventBus";
+import { Loader } from "./Loader";
+import { Face } from "../internal";
+import { emulateLoader, loadImage, random } from "../utils";
+import { canvasToViewport, createMaskCanvas, invertColors } from "../drawUtils";
 
 export class Photo {
     constructor(parent) {
@@ -30,7 +30,9 @@ export class Photo {
     }
 
     async getFaces(src) {
-        // this.img = await loadImage(src);
+        // const loader = new Loader("uploading");
+        // loader.show();
+
         this.img = src;
 
         const faces = [];
@@ -46,11 +48,13 @@ export class Photo {
 
         for (const det of detections) {
             const { _x, _y, _width, _height } = det.alignedRect.box;
+
             const bounds = {
                 x: _x,
                 y: _y,
                 width: _width,
                 height: _height,
+                points: det.landmarks.positions,
             };
 
             faces.push(bounds);
@@ -61,12 +65,12 @@ export class Photo {
         this.faces = faces.map((bounds) => {
             const face = new Face(bounds, this.photoView, this);
             //crop square from og canvas to face.squareCanvas
-            // face.squareCanvas = face.cropToSquare(this.cv, bounds);
-            // console.log("face.scaledBounds: ", face.scaledBounds);
 
-            // console.log("face.squareCanvas", face.squareCanvas);
+            console.log("this.cv: ", this.cv);
 
-            const output = this.swapFace(face);
+            // face.squareCanvas = face.cropToSquare(this.cv, face.cvBounds);
+            // face.mask = createMaskCanvas(face.squareCanvas, bounds.points);
+            // const output = this.swapFace(face);
 
             face.refreshCanvas = () => this.render();
 
@@ -74,9 +78,10 @@ export class Photo {
         });
 
         this.setEditMode(this.editMode);
+        // loader.hide();
     }
 
-    swapFace(faceObject) {
+    swapFace(face) {
         const loader = new Loader("swapping");
         loader.show();
         // let output = null;
@@ -87,13 +92,8 @@ export class Photo {
 
         //fix canvas bounds, too wide and too much left
 
-        const squareCanvas = faceObject.cropToSquare(
-            this.cv,
-            faceObject.cvBounds
-        );
-
-        let output = invertColors(squareCanvas);
-        faceObject.setSwappedFace(output);
+        let output = invertColors(face.squareCanvas);
+        face.setSwappedFace(output);
         // this.faces.forEach( (face) => {
         //     console.log("FACE",face)
         //     // await emulateLoader(10, 500);
@@ -123,12 +123,13 @@ export class Photo {
     }
 
     render() {
+        console.log("Photo render was called");
         this.cv.width = this.img.width;
         this.cv.height = this.img.height;
         this.c.drawImage(this.img, 0, 0);
 
-        this.faces.forEach((face) => {
-            face.render(this.c);
-        });
+        // this.faces.forEach((face) => {
+        //     face.render(this.c);
+        // });
     }
 }

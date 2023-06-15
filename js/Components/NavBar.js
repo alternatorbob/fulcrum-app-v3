@@ -1,5 +1,5 @@
-import { changeState, states, getState } from "./state.js";
-import eventBus from "./EventBus.js";
+import { changeState, states, getState } from "../state.js";
+import eventBus from "../EventBus.js";
 
 // export class NavBar {
 //     constructor() {

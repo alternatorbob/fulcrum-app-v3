@@ -1,6 +1,7 @@
-import { states } from "./state";
-import { changeState } from "./state";
-import eventBus from "./EventBus";
+import { states } from "../state";
+import { changeState } from "../state";
+import eventBus from "../EventBus";
+import { Loader } from "./Loader";
 
 class DivComponent {
     constructor(tagName, classNames = [], attributes = {}) {

@@ -210,29 +210,31 @@ function drawEllipse(ctx, x, y, width, height) {
     ctx.ellipse(x, y, width, height, 0, 0, 2 * Math.PI);
 }
 
-export function createMaskCanvas(img, width, height, points, id) {
-    const container = document.querySelector("#photo--input--container");
+export function createMaskCanvas(squareCanvas, points) {
+    const { width, height } = squareCanvas;
     const maskCanvas = document.createElement("canvas");
-    maskCanvas.class = `mask--canvas`;
-    maskCanvas.id = `mask--canvas--${id}`;
+
+    // maskCanvas.class = `mask--canvas`;
+    // maskCanvas.id = `mask--canvas--${id}`;
     maskCanvas.width = width;
     maskCanvas.height = height;
-    maskCanvas.classList.add("hidden");
+    // maskCanvas.classList.add("hidden");
 
     const ctx = maskCanvas.getContext("2d");
     ctx.fillStyle = "white";
     ctx.fill();
     ctx.fillRect(0, 0, width, height);
+
     drawMask(maskCanvas, points);
 
-    container.append(maskCanvas);
+    document.body.appendChild(squareCanvas);
+    document.body.appendChild(maskCanvas);
 
     return maskCanvas;
 }
 
 export function drawMask(canvas, points) {
     const ctx = canvas.getContext("2d");
-    // let pointIndexes = pushValues(17, 26).concat(pushValues(16, 0));
 
     const mouthWidth = distanceBetweenPoints(points[60], points[64]) * 0.9;
     const mouthHeight = mouthWidth * 0.5;

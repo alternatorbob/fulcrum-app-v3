@@ -5,7 +5,8 @@ import { Photo } from "./js/internal";
 import { NavBar } from "./js/internal";
 import { HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
-import { FullscreenPopup, IntroTransition } from "./js/UI";
+import { Popup } from "./js/Components/Popup";
+import { IntroTransition } from "./js/Components/IntroTransition";
 
 updatePixelRatio();
 
@@ -16,14 +17,14 @@ Promise.all([
     faceapi.nets.ageGenderNet.loadFromUri("/models"),
 ]).then(() => {
     console.log("models were loaded");
+    homePage.createDivs();
     switchActiveView();
 });
 
 const app = document.querySelector("#app");
 const homePage = new HomePage(switchActiveView);
 
-console.log("createDivs")
-homePage.createDivs();
+console.log("createDivs");
 
 const photoApp = new Photo(app);
 const navBar = new NavBar(switchActiveView);
@@ -31,10 +32,10 @@ const navBar = new NavBar(switchActiveView);
 // const popup = new FullscreenPopup(switchActiveView);
 // popup.open();
 
-const photoDiv = document.querySelector(".photo");
-const homeDiv = document.querySelector(".home");
-
 export async function switchActiveView(activeState = getState()) {
+    const photoDiv = document.querySelector(".photo");
+    const homeDiv = document.querySelector(".home");
+    
     switch (activeState) {
         case "home":
             console.log(`Current View: ${activeState}`);

@@ -1,8 +1,7 @@
-import { adjustDetectionBoxes } from "./utils";
-import eventBus from "./EventBus.js";
-import { Loader } from "./UI";
-import { delay } from "./utils";
-import { getState } from "./state";
+import eventBus from "../EventBus.js";
+import { Loader } from "./Loader.js";
+import { delay, adjustDetectionBoxes } from "../utils";
+import { getState } from "../state";
 
 function randomColor() {
     return (
@@ -25,27 +24,27 @@ export class Face {
         this.elem.id = `face-${Face.instanceCount}`;
 
         this.squareCanvas;
+        this.result = null;
+        this.mask = null;
+        this.prompt = null;
+
+        this.scaledBounds = this.canvasToViewport(
+            this.cvBounds,
+            this.canvas,
+            this.parent
+        );
 
         this.detectionBox = new Image();
         this.detectionBox.onload = () => {
-            const scaledBounds = this.canvasToViewport(
-                this.cvBounds,
-                this.canvas,
-                this.parent
-            );
+            this.elem.style.cssText = `top: ${this.scaledBounds.y}px; left: ${this.scaledBounds.x}px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px`;
 
-            this.elem.style.cssText = `top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
-
-            const { x, y, width, height } = this.cvBounds;
-            this.detectionBox.width = scaledBounds.width;
-            this.detectionBox.height = scaledBounds.height;
+            this.detectionBox.width = this.scaledBounds.width;
+            this.detectionBox.height = this.scaledBounds.height;
             this.detectionBox.style.cssText = `position:fixed; z-index:"999"`;
             this.elem.appendChild(this.detectionBox);
         };
 
         this.detectionBox.src = "icons/fulcrum_frame_new.svg";
-
-        this.result = null;
 
         // this.color = randomColor();
         this.editMode = false;
@@ -110,24 +109,26 @@ export class Face {
     }
 
     setSwappedFace(canvas) {
-        console.log("SET SWAPPED FACE", canvas);
-
-        //your fake face is the canvas
+        //your swapped face is the canvas
         const scaledBounds = this.canvasToViewport(
             this.cvBounds,
             this.canvas,
             this.parent
         );
-        canvas.style.cssText = `position:fixed; top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
 
-        const { x, y, width, height } = this.cvBounds;
-        // canvas.width = scaledBounds.width;
-        // canvas.height = scaledBounds.height;
+        canvas.style.cssText = `position: fixed; top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
+
+        this.result = canvas;
+
         this.elem.appendChild(canvas);
     }
 
+    getScaledBounds() {
+        return this.canvasToViewport(this.cvBounds, this.canvas, this.parent);
+    }
+
     canvasToViewport(bounds, canvas, parent) {
-        let { x, y, width, height } = bounds;
+        let { x, y, width, height, points } = bounds;
 
         const parentWidth = parent.offsetWidth;
         const parentHeight = parent.offsetHeight;
@@ -140,11 +141,20 @@ export class Face {
         const widthScaled = width * xRatio;
         const heightScaled = height * yRatio;
 
-        return { x, y, width: widthScaled, height: heightScaled };
-    }
+        // Adjusting points object
+        points.forEach((point) => {
+            point._x *= xRatio;
+            point._y *= yRatio;
+        });
+        const { _x, _y } = bounds.points;
 
-    autoSquare() {
-        return this.cropToSquare(this.canvas, this.cvBounds);
+        return {
+            x,
+            y,
+            width: widthScaled,
+            height: heightScaled,
+            points: points,
+        };
     }
 
     cropToSquare(canvas, bounds) {
@@ -205,6 +215,9 @@ export class Face {
         }
 
         if (!this.isShowing.result) {
+            this.hide(this.result);
+        } else {
+            this.show(this.result);
         }
 
         // if (getState() === "edit") {
