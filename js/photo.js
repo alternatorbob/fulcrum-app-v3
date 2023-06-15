@@ -66,7 +66,7 @@ export class Photo {
 
             // console.log("face.squareCanvas", face.squareCanvas);
 
-            const output = this.swapFaces(face);
+            const output = this.swapFace(face);
 
             face.refreshCanvas = () => this.render();
 
@@ -76,21 +76,24 @@ export class Photo {
         this.setEditMode(this.editMode);
     }
 
-    swapFaces(faceObject) {
+    swapFace(faceObject) {
         const loader = new Loader("swapping");
         loader.show();
         // let output = null;
-        console.log(this.c.canvas);
-        const test = document.createElement("canvas");
-        const ctx = test.getContext("2d");
-        ctx.fillRect(0, 0, test.width, test.height);
+        // console.log(this.c.canvas);
+        // const test = document.createElement("canvas");
+        // const ctx = test.getContext("2d");
+        // ctx.fillRect(0, 0, test.width, test.height);
 
         //fix canvas bounds, too wide and too much left
 
-        const squareCanvas = faceObject.cropToSquare(test, faceObject.cvBounds);
+        const squareCanvas = faceObject.cropToSquare(
+            this.cv,
+            faceObject.cvBounds
+        );
 
         let output = invertColors(squareCanvas);
-        faceObject.setFakeFace(output);
+        faceObject.setSwappedFace(output);
         // this.faces.forEach( (face) => {
         //     console.log("FACE",face)
         //     // await emulateLoader(10, 500);

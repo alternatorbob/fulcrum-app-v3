@@ -39,6 +39,7 @@ export class Face {
             const { x, y, width, height } = this.cvBounds;
             this.detectionBox.width = scaledBounds.width;
             this.detectionBox.height = scaledBounds.height;
+            this.detectionBox.style.cssText = `position:fixed; z-index:"999"`;
             this.elem.appendChild(this.detectionBox);
         };
 
@@ -108,19 +109,20 @@ export class Face {
         this.isShowing = { detection: enabled ? false : true, result: true };
     }
 
-    setFakeFace(canvas) {
-        console.log("SET FAKE FACE", canvas);
+    setSwappedFace(canvas) {
+        console.log("SET SWAPPED FACE", canvas);
+
         //your fake face is the canvas
         const scaledBounds = this.canvasToViewport(
             this.cvBounds,
-            canvas,
+            this.canvas,
             this.parent
         );
-        canvas.style.cssText = `position:absolute;top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
+        canvas.style.cssText = `position:fixed; top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
 
         const { x, y, width, height } = this.cvBounds;
-        canvas.width = scaledBounds.width;
-        canvas.height = scaledBounds.height;
+        // canvas.width = scaledBounds.width;
+        // canvas.height = scaledBounds.height;
         this.elem.appendChild(canvas);
     }
 
@@ -167,8 +169,6 @@ export class Face {
             width,
             height
         );
-
-        // document.body.appendChild(canvas);
 
         return squareCanvas;
     }
