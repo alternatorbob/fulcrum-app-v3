@@ -118,7 +118,7 @@ export class Photo {
 
     resetBoundingBoxes() {
         this.faces.forEach((face) => {
-            face.isShowing.detection = false;
+            face.setSelection(false);
         });
     }
 

@@ -68,9 +68,9 @@ canvas {
     position: absolute;
 }
 
-.face.enabled {
+/* .face.enabled {
     outline: 5px solid black;
-}
+} */
 
 .face.edit {
     outline-color: red;
