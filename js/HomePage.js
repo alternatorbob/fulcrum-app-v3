@@ -54,6 +54,10 @@ export class HomePage {
             style: "margin-top: 60px",
         });
 
+        // logoDiv.addEventListener("click", (e) => {
+        //     console.log(e);
+        // });
+
         const logoImg = new ImageComponent("/icons/fulcrum_logo.svg", "", {
             style: "width: 5em",
         });

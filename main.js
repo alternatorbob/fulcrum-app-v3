@@ -22,7 +22,7 @@ Promise.all([
 const app = document.querySelector("#app");
 const homePage = new HomePage(switchActiveView);
 
-console.log("createDivs")
+console.log("createDivs");
 homePage.createDivs();
 
 const photoApp = new Photo(app);

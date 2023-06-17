@@ -143,7 +143,7 @@ export class NavBar {
         this.navBarElement.style.display = "flex";
         this.navBarElement.style.justifyContent = "space-between";
         this.navBarElement.style.position = "fixed";
-        this.navBarElement.style.bottom = "0px";
+        this.navBarElement.style.bottom = "75px";
         this.navBarElement.style.left = "0";
         this.navBarElement.style.right = "0";
         this.navBarElement.style.margin = "auto";
