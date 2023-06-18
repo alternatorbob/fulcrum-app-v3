@@ -4,12 +4,6 @@ import { Loader } from "./UI";
 import { delay } from "./utils";
 import { getState } from "./state";
 
-function randomColor() {
-    return (
-        "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0")
-    );
-}
-
 export class Face {
     static instanceCount = 0;
     constructor(bounds, parent, scope) {
@@ -50,17 +44,11 @@ export class Face {
 
         this.result = null;
 
-        // this.color = randomColor();
-
         this.faceEnabled = true;
         this.editMode = false;
 
         this.isShowing = { selection: true, result: true };
 
-
-
-        // this.parent = parent;
-        // this.canvas = this.parent.querySelector("canvas");
         console.log(this.parent);
         this.parent.appendChild(this.elem);
 
@@ -68,29 +56,17 @@ export class Face {
             switch (getState()) {
                 case "result":
                     // this.faceEnabled = !this.faceEnabled;
-                    this.toggleSelection()
-                    this.toggleResult()
-                    this.refreshCanvas()
+                    this.toggleSelection();
+                    this.toggleResult();
+                    this.refreshCanvas();
                     break;
                 case "edit":
                     this.scope.resetBoundingBoxes();
 
-                    this.toggleSelection()
+                    this.toggleSelection();
                     this.refreshCanvas();
                     break;
             }
-
-            // if (getState() === "edit") {
-            //     this.hide(this.selectionBox);
-            //     this.isShowing.selection = !this.isShowing.selection;
-            //     this.refreshCanvas();
-            // }
-
-            // const enabled = this.toggleEnabled();
-
-            // if (enabled) {
-            //     await this.regenerate();
-            // }
         };
 
         eventBus.addEventListener("toggleEnable", () => {
@@ -110,11 +86,11 @@ export class Face {
     }
 
     toggleFace() {
-        this.showFace(!this.faceShown())
+        this.showFace(!this.faceShown());
     }
 
     faceShown() {
-        return this.faceEnabled
+        return this.faceEnabled;
     }
 
     showFace(enabled) {
@@ -122,7 +98,7 @@ export class Face {
     }
 
     toggleSelection() {
-        this.setSelection(!this.isSelected())
+        this.setSelection(!this.isSelected());
     }
 
     isSelected() {
@@ -144,21 +120,17 @@ export class Face {
     setEditMode(enabled) {
         this.editMode = enabled;
 
-
         if (enabled) {
+            if (!this.isResultShown()) this.showFace(false);
 
-            if (!this.isResultShown()) this.showFace(false)
-
-            this.setSelection(!this.editMode)
+            this.setSelection(!this.editMode);
             this.showResult(true);
         } else {
+            const active = this.faceShown();
 
-            const active = this.faceShown()
-
-            if(active) {
+            if (active) {
                 this.setSelection(true);
                 this.showResult(true);
-                
             } else {
                 this.setSelection(false);
                 this.showResult(false);
@@ -166,7 +138,6 @@ export class Face {
 
             this.showFace(true);
         }
-
     }
 
     setSwappedFace(canvas) {
@@ -179,7 +150,7 @@ export class Face {
         );
 
         const size = Math.max(scaledBounds.width, scaledBounds.height);
-       
+
         canvas.style.cssText = `position: absolute; top:0; left: 0; width: ${size}px; height: ${size}px;`;
 
         this.result = canvas;
@@ -218,17 +189,7 @@ export class Face {
         squareCanvas.height = size;
 
         const ctx = squareCanvas.getContext("2d");
-        ctx.drawImage(
-            canvas,
-            x,
-            y,
-            width,
-            height,
-            0,
-            0,
-            width,
-            height
-        );
+        ctx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
 
         return squareCanvas;
     }
@@ -240,8 +201,6 @@ export class Face {
             this.parent
         );
 
-        // if (this.editMode) {
-        // }
         this.elem.classList.toggle("hidden", !this.faceEnabled);
         this.selectionBox.classList.toggle("hidden", !this.isShowing.selection);
         this.result.classList.toggle("hidden", !this.isShowing.result);
@@ -252,33 +211,9 @@ export class Face {
         return bounds;
     }
 
-    refreshCanvas() { }
+    refreshCanvas() {}
 
     render(ctx) {
-
-
-        // if (getState() === "edit") {
-        //     if (this.isShowing.selection) {
-        //         this.hide(this.selectionBox);
-        //     } else {
-        //         this.show(this.selectionBox);
-        //     }
-        // }
-
         this.updateCSS(this.elem);
-
-        // const scaledBounds = this.canvasToViewport(
-        //     this.cvBounds,
-        //     this.canvas,
-        //     this.parent
-        // );
-
-        // if (this.enabled) {
-        //     const { x, y, width, height } = this.cvBounds;
-
-        //     this.selectionBox.width = scaledBounds.width;
-        //     this.selectionBox.height = scaledBounds.height;
-        //     this.elem.appendChild(this.selectionBox);
-        // }
     }
 }

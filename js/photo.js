@@ -66,11 +66,6 @@ export class Photo {
 
         this.faces = faces.map((bounds) => {
             const face = new Face(bounds, this.photoView, this);
-            //crop square from og canvas to face.squareCanvas
-            // face.squareCanvas = face.cropToSquare(this.cv, bounds);
-            // console.log("face.scaledBounds: ", face.scaledBounds);
-
-            // console.log("face.squareCanvas", face.squareCanvas);
 
             const output = this.swapFace(face);
 
@@ -85,13 +80,6 @@ export class Photo {
     swapFace(faceObject) {
         const loader = new Loader("swapping");
         loader.show();
-        // let output = null;
-        // console.log(this.c.canvas);
-        // const test = document.createElement("canvas");
-        // const ctx = test.getContext("2d");
-        // ctx.fillRect(0, 0, test.width, test.height);
-
-        //fix canvas bounds, too wide and too much left
 
         const squareCanvas = faceObject.cropToSquare(
             this.cv,
@@ -102,17 +90,11 @@ export class Photo {
         const faceImage = squareCanvas.toDataURL();
         const maskImage = maskCanvas.toDataURL();
 
-        console.log({faceImage, maskImage});
+        console.log({ faceImage, maskImage });
 
         let output = invertColors(squareCanvas);
 
         faceObject.setSwappedFace(output);
-        // this.faces.forEach( (face) => {
-        //     console.log("FACE",face)
-        //     // await emulateLoader(10, 500);
-        //     output = invertColors(face.squareCanvas);
-        //     faceObject.setFakeFace(output);
-        // });
 
         loader.hide();
 
