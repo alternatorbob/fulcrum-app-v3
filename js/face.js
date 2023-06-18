@@ -3,10 +3,12 @@ import eventBus from "./EventBus.js";
 import { Loader } from "./UI";
 import { delay } from "./utils";
 import { getState } from "./state";
+import { getPrompt } from "./getPrompt.js";
+import { featherEdges } from "./drawUtils.js";
 
 export class Face {
     static instanceCount = 0;
-    constructor(bounds, parent, scope) {
+    constructor(bounds, features, parent, scope) {
         Face.instanceCount++;
         this.bounds = bounds;
         this.scope = scope;
@@ -19,29 +21,28 @@ export class Face {
         this.elem.className = "face";
         this.elem.id = `face-${Face.instanceCount}`;
 
-        this.squareCanvas;
+        this.scaledBounds = this.canvasToViewport(
+            this.cvBounds,
+            this.canvas,
+            this.parent
+        );
 
-        console.log(bounds);
+        this.squareCanvas;
 
         this.selectionBox = new Image();
         this.selectionBox.onload = () => {
-            const scaledBounds = this.canvasToViewport(
-                this.cvBounds,
-                this.canvas,
-                this.parent
-            );
-
-            this.elem.style.cssText = `top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
+            this.elem.style.cssText = `top: ${this.scaledBounds.y}px; left: ${this.scaledBounds.x}px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px`;
 
             const { x, y, width, height } = this.cvBounds;
-            this.selectionBox.width = scaledBounds.width;
-            this.selectionBox.height = scaledBounds.height;
-            this.selectionBox.style.cssText = `position:absolute; z-index:"999"`;
+            this.selectionBox.width = this.scaledBounds.width;
+            this.selectionBox.height = this.scaledBounds.height;
+            this.selectionBox.style.cssText = `position:absolute; z-index:"999";`;
             this.elem.appendChild(this.selectionBox);
         };
 
         this.selectionBox.src = "icons/fulcrum_frame_new.svg";
 
+        this.prompt = this.getPrompt(features);
         this.result = null;
 
         this.faceEnabled = true;
@@ -49,7 +50,6 @@ export class Face {
 
         this.isShowing = { selection: true, result: true };
 
-        console.log(this.parent);
         this.parent.appendChild(this.elem);
 
         this.elem.onclick = async (e) => {
@@ -140,21 +140,84 @@ export class Face {
         }
     }
 
-    setSwappedFace(canvas) {
-        console.log("SET SWAPPED FACE", canvas);
+    cropToSquare(canvas, bounds) {
+        const { x, y, width, height } = bounds;
 
-        const scaledBounds = this.canvasToViewport(
-            this.cvBounds,
-            this.canvas,
-            this.parent
+        const size = Math.min(width, height);
+
+        const squareCanvas = document.createElement("canvas");
+        squareCanvas.classList.add("squareCanvas");
+
+        squareCanvas.width = size;
+        squareCanvas.height = size;
+
+        const ctx = squareCanvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(canvas, x, y, width, height, 0, 0, size, size);
+
+        return squareCanvas;
+    }
+
+    createScaledCanvas(canvas) {
+        const size = 512;
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = tempCanvas.height = size;
+
+        const ctx = tempCanvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(canvas, 0, 0, size, size);
+
+        return tempCanvas;
+    }
+
+    setSwappedFace(image) {
+        console.log("SET SWAPPED FACE", image);
+
+        const size = Math.min(
+            this.scaledBounds.width,
+            this.scaledBounds.height
         );
 
-        const size = Math.max(scaledBounds.width, scaledBounds.height);
+        const resultCanvas = document.createElement("canvas");
+        const ctx = resultCanvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
 
-        canvas.style.cssText = `position: absolute; top:0; left: 0; width: ${size}px; height: ${size}px;`;
+        resultCanvas.classList.add("result");
+        resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
+        // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
 
-        this.result = canvas;
-        this.elem.appendChild(canvas);
+        // ctx.clearRect(0, 0, this.squareCanvas.width, this.squareCanvas.height);
+        ctx.drawImage(
+            image,
+            0,
+            0,
+            image.width,
+            image.height,
+            0,
+            0,
+            resultCanvas.width,
+            resultCanvas.height
+        );
+        // ctx.drawImage(
+        //     image,
+        //     0,
+        //     0,
+        //     image.width,
+        //     image.height,
+        //     0,
+        //     0,
+        //     this.squareCanvas.width,
+        //     this.squareCanvas.height
+        // );
+
+        // featherEdges(resultCanvas);
+
+        this.result = image;
+        this.elem.appendChild(resultCanvas);
+    }
+
+    getPrompt(features) {
+        return getPrompt(features);
     }
 
     canvasToViewport(bounds, canvas, parent) {
@@ -174,41 +237,15 @@ export class Face {
         return { x, y, width: widthScaled, height: heightScaled };
     }
 
-    autoSquare() {
-        return this.cropToSquare(this.canvas, this.cvBounds);
-    }
-
-    cropToSquare(canvas, bounds) {
-        const { x, y, width, height } = bounds;
-
-        const size = Math.max(width, height);
-
-        const squareCanvas = document.createElement("canvas");
-
-        squareCanvas.width = size;
-        squareCanvas.height = size;
-
-        const ctx = squareCanvas.getContext("2d");
-        ctx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
-
-        return squareCanvas;
-    }
-
     updateCSS(elem) {
-        const bounds = this.canvasToViewport(
-            this.cvBounds,
-            this.canvas,
-            this.parent
-        );
-
         this.elem.classList.toggle("hidden", !this.faceEnabled);
         this.selectionBox.classList.toggle("hidden", !this.isShowing.selection);
         this.result.classList.toggle("hidden", !this.isShowing.result);
 
         elem.classList.toggle("edit", this.editMode);
-        elem.style.cssText = `top: ${bounds.y}px; left: ${bounds.x}px; width: ${bounds.width}px; height: ${bounds.height}px`;
+        elem.style.cssText = `top: ${this.scaledBounds.y}px; left: ${this.scaledBounds.x}px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px`;
 
-        return bounds;
+        return this.scaledBounds;
     }
 
     refreshCanvas() {}

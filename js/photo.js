@@ -5,6 +5,7 @@ import { Loader } from "./UI";
 import { canvasToViewport, createMaskCanvas, invertColors } from "./drawUtils";
 import eventBus from "./EventBus";
 import { states, changeState } from "./state";
+import { inPaint } from "./replicate";
 
 export class Photo {
     constructor(parent, switchActiveView) {
@@ -32,7 +33,6 @@ export class Photo {
     }
 
     async getFaces(src) {
-        // this.img = await loadImage(src);
         this.img = src;
 
         const faces = [];
@@ -40,65 +40,106 @@ export class Photo {
         let detections = await faceapi
             .detectAllFaces(this.img)
             .withFaceLandmarks()
-            .withAgeAndGender();
+            .withAgeAndGender()
+            .withFaceExpressions();
 
         detections = detections.filter(({ detection }) => {
             return detection._score > 0.6;
         });
 
+        let highestValue = 0;
+        let chosenExpression = null;
+
         for (const det of detections) {
             const { _x, _y, _width, _height } = det.alignedRect.box;
+
             const bounds = {
-                x: Math.round(_x),
-                y: Math.round(_y),
-                width: Math.round(_width),
-                height: Math.round(_height),
+                x: _x,
+                y: _y,
+                width: _width,
+                height: _height,
                 points: det.landmarks,
             };
 
-            faces.push(bounds);
-        }
+            for (const expression in det.expressions) {
+                const val = det.expressions[expression];
+                if (val > highestValue) {
+                    highestValue = val;
+                    chosenExpression = expression;
+                }
+            }
 
-        // const facesBounds = await getDetections(this.img);
+            const features = {
+                age: det.age,
+                gender: det.gender,
+                expression: chosenExpression,
+            };
+
+            const faceObject = { bounds: bounds, features: features };
+
+            faces.push(faceObject);
+        }
 
         changeState(states.DETECTIONS);
         this.switchActiveView();
 
-        this.faces = faces.map((bounds) => {
-            const face = new Face(bounds, this.photoView, this);
+        this.faces = await Promise.all(
+            faces.map(async (faceObj) => {
+                const { bounds, features } = faceObj;
+                console.log("faceObj: ", faceObj);
+                const face = new Face(bounds, features, this.photoView, this);
 
-            const output = this.swapFace(face);
+                const result = await this.swapFace(face);
+                face.setSwappedFace(result);
 
-            face.refreshCanvas = () => this.render();
+                face.refreshCanvas = () => this.render();
 
-            return face;
-        });
+                return face;
+            })
+        );
 
         this.setEditMode(this.editMode);
     }
 
-    swapFace(faceObject) {
+    async swapFace(face) {
         const loader = new Loader("swapping");
         loader.show();
 
-        const squareCanvas = faceObject.cropToSquare(
-            this.cv,
-            faceObject.cvBounds
+        const squareCanvas = face.cropToSquare(this.cv, face.cvBounds);
+        face.squareCanvas = squareCanvas;
+
+        const maskCanvas = createMaskCanvas(face, squareCanvas);
+
+        const scaledSquareCanvas = face.createScaledCanvas(squareCanvas);
+        const scaledMaskCanvas = face.createScaledCanvas(maskCanvas);
+
+        // squareCanvas.width = maskCanvas.width = 512;
+        // squareCanvas.height = maskCanvas.height = 512;
+
+        const faceImage = scaledSquareCanvas.toDataURL();
+        const maskImage = scaledMaskCanvas.toDataURL();
+
+        document.body.appendChild(scaledSquareCanvas);
+        document.body.appendChild(scaledMaskCanvas);
+
+        // return scaledSquareCanvas;
+
+        const url = await inPaint(
+            faceImage,
+            maskImage,
+            face.prompt,
+            (value) => {
+                const lines = value.split("\n").filter(Boolean);
+                const lastLine = lines[lines.length - 1];
+                let number = 0;
+                if (lastLine) number = Number(lastLine.split("%")[0]);
+                // console.log("number: ", number);
+                console.log("value: ", value);
+            }
         );
-        const maskCanvas = createMaskCanvas(faceObject, squareCanvas);
-
-        const faceImage = squareCanvas.toDataURL();
-        const maskImage = maskCanvas.toDataURL();
-
-        console.log({ faceImage, maskImage });
-
-        let output = invertColors(squareCanvas);
-
-        faceObject.setSwappedFace(output);
 
         loader.hide();
-
-        return output;
+        return loadImage(url);
     }
 
     getResult(faces) {

@@ -7,27 +7,26 @@ import { HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
 import { FullscreenPopup, IntroTransition } from "./js/UI";
 
-
 const loadModel = () => {
     return Promise.all([
         faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
         faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
         faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
         faceapi.nets.ageGenderNet.loadFromUri("/models"),
-    ])
-}
-
+        faceapi.nets.faceExpressionNet.loadFromUri("/models"),
+    ]);
+};
 
 let homePage;
 let photoApp;
 let navBar;
 const setupViews = () => {
     const app = document.querySelector("#app");
-    
+
     homePage = new HomePage(switchActiveView);
     photoApp = new Photo(app, switchActiveView);
     navBar = new NavBar(switchActiveView);
-}
+};
 
 const initializeApp = async () => {
     updatePixelRatio();
@@ -38,8 +37,7 @@ const initializeApp = async () => {
     setupViews();
     homePage.createDivs();
     switchActiveView();
-}
-
+};
 
 // const popup = new FullscreenPopup(switchActiveView);
 // popup.open();
@@ -92,6 +90,5 @@ export async function switchActiveView(activeState = getState()) {
             break;
     }
 }
-
 
 initializeApp();

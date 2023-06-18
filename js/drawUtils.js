@@ -210,9 +210,72 @@ function drawEllipse(ctx, x, y, width, height) {
     ctx.ellipse(x, y, width, height, 0, 0, 2 * Math.PI);
 }
 
+export function featherEdges(canvas) {
+    const ctx = canvas.getContext("2d");
+
+    const ratio = 0.1; // Adjust this value to control the amount of feathering (0 to 1)
+
+    // Calculate gradient dimensions based on the canvas size and ratio
+    const topGradientHeight = canvas.height * ratio;
+    const bottomGradientHeight = canvas.height * ratio;
+    const leftGradientWidth = canvas.width * ratio;
+    const rightGradientWidth = canvas.width * ratio;
+
+    // Create linear gradients for each side
+    const gradientTop = ctx.createLinearGradient(0, 0, 0, topGradientHeight);
+    gradientTop.addColorStop(0, "rgba(0, 0, 0, 1)"); // Opaque black
+    gradientTop.addColorStop(1, "rgba(0, 0, 0, 0)"); // Transparent black
+
+    const gradientRight = ctx.createLinearGradient(
+        canvas.width - rightGradientWidth,
+        0,
+        canvas.width,
+        0
+    );
+    gradientRight.addColorStop(0, "rgba(0, 0, 0, 1)");
+    gradientRight.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+    const gradientBottom = ctx.createLinearGradient(
+        0,
+        canvas.height - bottomGradientHeight,
+        0,
+        canvas.height
+    );
+    gradientBottom.addColorStop(1, "rgba(0, 0, 0, 0)");
+    gradientBottom.addColorStop(0, "rgba(0, 0, 0, 1)");
+
+    const gradientLeft = ctx.createLinearGradient(0, 0, leftGradientWidth, 0);
+    gradientLeft.addColorStop(0, "rgba(0, 0, 0, 1)");
+    gradientLeft.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+    // Apply gradients to each side
+    ctx.globalCompositeOperation = "destination-out";
+
+    ctx.fillStyle = gradientTop;
+    ctx.fillRect(0, 0, canvas.width, topGradientHeight);
+
+    // ctx.fillStyle = gradientRight;
+    // ctx.fillRect(
+    //     canvas.width - rightGradientWidth,
+    //     0,
+    //     rightGradientWidth,
+    //     canvas.height
+    // );
+
+    ctx.fillStyle = gradientBottom;
+    ctx.fillRect(
+        0,
+        canvas.height - bottomGradientHeight,
+        canvas.width,
+        bottomGradientHeight
+    );
+
+    // ctx.fillStyle = gradientLeft;
+    // ctx.fillRect(0, 0, leftGradientWidth, canvas.height);
+}
+
 export function createMaskCanvas(face, squareCanvas) {
-    const width = squareCanvas.width;
-    const height = squareCanvas.height;
+    const { width, height } = squareCanvas;
 
     const maskCanvas = document.createElement("canvas");
     maskCanvas.width = width;
@@ -227,10 +290,11 @@ export function createMaskCanvas(face, squareCanvas) {
     const faceY = face.bounds.y;
 
     const shiftedPositions = [...face.bounds.points.positions];
-    shiftedPositions.forEach(point => {
+    shiftedPositions.forEach((point) => {
         point._x -= faceX;
         point._y -= faceY;
-    })
+    });
+
     drawMask(maskCanvas, shiftedPositions);
 
     return maskCanvas;

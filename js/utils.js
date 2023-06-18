@@ -41,6 +41,27 @@ export function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function highestValueKey(object) {
+    let highestValue = 0;
+    let highestKey = null;
+
+    for (const key in object) {
+        if (object.hasOwnProperty(key)) {
+            const value = object[key];
+            if (
+                typeof value === "number" &&
+                !isNaN(value) &&
+                value > highestValue
+            ) {
+                highestValue = value;
+                highestKey = key;
+            }
+        }
+    }
+
+    return highestKey;
+}
+
 export function highlightPoints(canvas, point) {
     const ctx = canvas.getContext("2d");
     const radius = 10;
