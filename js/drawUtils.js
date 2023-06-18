@@ -210,22 +210,28 @@ function drawEllipse(ctx, x, y, width, height) {
     ctx.ellipse(x, y, width, height, 0, 0, 2 * Math.PI);
 }
 
-export function createMaskCanvas(img, width, height, points, id) {
-    const container = document.querySelector("#photo--input--container");
+export function createMaskCanvas(face, squareCanvas) {
+    const width = squareCanvas.width;
+    const height = squareCanvas.height;
+
     const maskCanvas = document.createElement("canvas");
-    maskCanvas.class = `mask--canvas`;
-    maskCanvas.id = `mask--canvas--${id}`;
     maskCanvas.width = width;
     maskCanvas.height = height;
-    maskCanvas.classList.add("hidden");
 
     const ctx = maskCanvas.getContext("2d");
     ctx.fillStyle = "white";
     ctx.fill();
     ctx.fillRect(0, 0, width, height);
-    drawMask(maskCanvas, points);
 
-    container.append(maskCanvas);
+    const faceX = face.bounds.x;
+    const faceY = face.bounds.y;
+
+    const shiftedPositions = [...face.bounds.points.positions];
+    shiftedPositions.forEach(point => {
+        point._x -= faceX;
+        point._y -= faceY;
+    })
+    drawMask(maskCanvas, shiftedPositions);
 
     return maskCanvas;
 }

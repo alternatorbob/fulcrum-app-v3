@@ -2,11 +2,13 @@ import * as faceapi from "face-api.js";
 import { emulateLoader, loadImage, random } from "./utils";
 import { Face } from "./internal";
 import { Loader } from "./UI";
-import { canvasToViewport, invertColors } from "./drawUtils";
+import { canvasToViewport, createMaskCanvas, invertColors } from "./drawUtils";
 import eventBus from "./EventBus";
+import { states, changeState } from "./state";
 
 export class Photo {
-    constructor(parent) {
+    constructor(parent, switchActiveView) {
+        this.switchActiveView = switchActiveView;
         this.photoView = document.createElement("div");
         this.photoView.classList.add("photo");
         parent.appendChild(this.photoView);
@@ -47,16 +49,20 @@ export class Photo {
         for (const det of detections) {
             const { _x, _y, _width, _height } = det.alignedRect.box;
             const bounds = {
-                x: _x,
-                y: _y,
-                width: _width,
-                height: _height,
+                x: Math.round(_x),
+                y: Math.round(_y),
+                width: Math.round(_width),
+                height: Math.round(_height),
+                points: det.landmarks,
             };
 
             faces.push(bounds);
         }
 
         // const facesBounds = await getDetections(this.img);
+
+        changeState(states.DETECTIONS);
+        this.switchActiveView();
 
         this.faces = faces.map((bounds) => {
             const face = new Face(bounds, this.photoView, this);
@@ -91,8 +97,15 @@ export class Photo {
             this.cv,
             faceObject.cvBounds
         );
+        const maskCanvas = createMaskCanvas(faceObject, squareCanvas);
+
+        const faceImage = squareCanvas.toDataURL();
+        const maskImage = maskCanvas.toDataURL();
+
+        console.log({faceImage, maskImage});
 
         let output = invertColors(squareCanvas);
+
         faceObject.setSwappedFace(output);
         // this.faces.forEach( (face) => {
         //     console.log("FACE",face)

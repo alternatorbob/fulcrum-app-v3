@@ -161,14 +161,12 @@ export class HomePage {
             input.addEventListener("change", async (event) => {
                 const file = event.target.files[0];
                 const myImg = await onImageUpload(file);
-                eventBus.publish("fileSelected", myImg);
 
-                changeState(states.DETECTIONS);
-                this.switchActiveView();
+                eventBus.publish("fileSelected", myImg);
             });
         });
 
-        const onImageUpload = async (file) => {
+        const onImageUpload = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader(); // Create a FileReader object
 

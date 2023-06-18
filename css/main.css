@@ -55,6 +55,18 @@ canvas {
     image-rendering: smooth;
 }
 
+.photo {
+    width: 100%;
+    /* display: inline-flex; */
+    position: relative;
+}
+
+.photo > canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .photoContainer {
     width: 100%;
     display: inline-flex;

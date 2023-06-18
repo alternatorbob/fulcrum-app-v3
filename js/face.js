@@ -14,6 +14,7 @@ export class Face {
     static instanceCount = 0;
     constructor(bounds, parent, scope) {
         Face.instanceCount++;
+        this.bounds = bounds;
         this.scope = scope;
         this.parent = parent;
         this.canvas = this.parent.querySelector("canvas");
@@ -25,6 +26,8 @@ export class Face {
         this.elem.id = `face-${Face.instanceCount}`;
 
         this.squareCanvas;
+
+        console.log(bounds);
 
         this.selectionBox = new Image();
         this.selectionBox.onload = () => {
@@ -39,7 +42,7 @@ export class Face {
             const { x, y, width, height } = this.cvBounds;
             this.selectionBox.width = scaledBounds.width;
             this.selectionBox.height = scaledBounds.height;
-            this.selectionBox.style.cssText = `position:fixed; z-index:"999"`;
+            this.selectionBox.style.cssText = `position:absolute; z-index:"999"`;
             this.elem.appendChild(this.selectionBox);
         };
 
@@ -169,17 +172,16 @@ export class Face {
     setSwappedFace(canvas) {
         console.log("SET SWAPPED FACE", canvas);
 
-        //your fake face is the canvas
         const scaledBounds = this.canvasToViewport(
             this.cvBounds,
             this.canvas,
             this.parent
         );
-        canvas.style.cssText = `position:fixed; top: ${scaledBounds.y}px; left: ${scaledBounds.x}px; width: ${scaledBounds.width}px; height: ${scaledBounds.height}px`;
 
-        const { x, y, width, height } = this.cvBounds;
-        // canvas.width = scaledBounds.width;
-        // canvas.height = scaledBounds.height;
+        const size = Math.max(scaledBounds.width, scaledBounds.height);
+       
+        canvas.style.cssText = `position: absolute; top:0; left: 0; width: ${size}px; height: ${size}px;`;
+
         this.result = canvas;
         this.elem.appendChild(canvas);
     }
@@ -222,8 +224,8 @@ export class Face {
             y,
             width,
             height,
-            (size - width) / 2,
-            (size - height) / 2,
+            0,
+            0,
             width,
             height
         );

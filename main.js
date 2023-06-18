@@ -7,34 +7,47 @@ import { HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
 import { FullscreenPopup, IntroTransition } from "./js/UI";
 
-updatePixelRatio();
 
-Promise.all([
-    faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
-    faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-    faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
-    faceapi.nets.ageGenderNet.loadFromUri("/models"),
-]).then(() => {
+const loadModel = () => {
+    return Promise.all([
+        faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+        faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+        faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
+        faceapi.nets.ageGenderNet.loadFromUri("/models"),
+    ])
+}
+
+
+let homePage;
+let photoApp;
+let navBar;
+const setupViews = () => {
+    const app = document.querySelector("#app");
+    
+    homePage = new HomePage(switchActiveView);
+    photoApp = new Photo(app, switchActiveView);
+    navBar = new NavBar(switchActiveView);
+}
+
+const initializeApp = async () => {
+    updatePixelRatio();
+
+    await loadModel();
     console.log("models were loaded");
+
+    setupViews();
+    homePage.createDivs();
     switchActiveView();
-});
+}
 
-const app = document.querySelector("#app");
-const homePage = new HomePage(switchActiveView);
-
-console.log("createDivs");
-homePage.createDivs();
-
-const photoApp = new Photo(app);
-const navBar = new NavBar(switchActiveView);
 
 // const popup = new FullscreenPopup(switchActiveView);
 // popup.open();
 
-const photoDiv = document.querySelector(".photo");
-const homeDiv = document.querySelector(".home");
-
 export async function switchActiveView(activeState = getState()) {
+    const photoDiv = document.querySelector(".photo");
+    const homeDiv = document.querySelector(".home");
+
     switch (activeState) {
         case "home":
             console.log(`Current View: ${activeState}`);
@@ -79,3 +92,6 @@ export async function switchActiveView(activeState = getState()) {
             break;
     }
 }
+
+
+initializeApp();
