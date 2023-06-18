@@ -143,7 +143,7 @@ export class Face {
     cropToSquare(canvas, bounds) {
         const { x, y, width, height } = bounds;
 
-        const size = Math.min(width, height);
+        const size = Math.max(width, height);
 
         const squareCanvas = document.createElement("canvas");
         squareCanvas.classList.add("squareCanvas");
@@ -153,7 +153,7 @@ export class Face {
 
         const ctx = squareCanvas.getContext("2d");
         ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(canvas, x, y, width, height, 0, 0, size, size);
+        ctx.drawImage(canvas, x, y, size, size, 0, 0, size, size);
 
         return squareCanvas;
     }
@@ -213,6 +213,7 @@ export class Face {
         // featherEdges(resultCanvas);
 
         this.result = image;
+        console.log("this.result: ", this.result);
         this.elem.appendChild(resultCanvas);
     }
 

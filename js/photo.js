@@ -124,6 +124,8 @@ export class Photo {
 
         // return scaledSquareCanvas;
 
+        return invertColors(squareCanvas);
+
         const url = await inPaint(
             faceImage,
             maskImage,
