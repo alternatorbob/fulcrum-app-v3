@@ -182,6 +182,26 @@ export function srcToFile(src, fileName, mimeType) {
         });
 }
 
+export function calculateMultiplier(width) {
+    // Define the range of the width values
+    const minWidth = 40;
+    const maxWidth = 400;
+
+    // Define the range of the multiplier values
+    const minMultiplier = 0.8;
+    const maxMultiplier = 1.7;
+
+    // Calculate the normalized width value
+    const normalizedWidth = (width - minWidth) / (maxWidth - minWidth);
+
+    // Calculate the mapped multiplier value
+    const mappedMultiplier =
+        normalizedWidth * (maxMultiplier - minMultiplier) + minMultiplier;
+
+    // Return the mapped multiplier value
+    return mappedMultiplier;
+}
+
 export function adjustDetectionBoxes(box) {
     const scaleFactor = 1.5;
     let detectionBox = { ...box };
@@ -221,3 +241,12 @@ export const updatePixelRatio = () => {
 
     console.log("devicePixelRatio: " + window.devicePixelRatio);
 };
+
+export const calculatePercentageChange = (oldValue, newValue) =>
+    ((newValue - oldValue) / Math.abs(oldValue)) * 100;
+
+export const scaleValueUp = (value, percentage) =>
+    value * (1 + percentage / 100);
+
+export const scaleValueDown = (value, percentage) =>
+    value * (1 - Math.abs(percentage) / 100);

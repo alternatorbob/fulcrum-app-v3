@@ -1,9 +1,11 @@
 import * as faceapi from "face-api.js";
+import { globalControls } from "../globalControls";
 import {
     pushValues,
     distanceBetweenPoints,
     isInArray,
     removeFromArray,
+    calculateMultiplier,
 } from "./utils";
 
 // let pointIndexes = pushValues(17, 26).concat([
@@ -13,42 +15,6 @@ let pointIndexes = pushValues(17, 26).concat([64, 55, 56, 57, 58, 59, 60, 17]);
 let resultCanvas, detectionsCanvas;
 export let activeObject;
 export let hiddenDetectionObjects = [];
-
-export async function drawDetectionBox(object) {
-    if (!object.isShowing.detection) return;
-
-    const { _x, _y, _width, _height } = object.detectionBox;
-    const img = new Image();
-    const photoContainer = document.querySelector("#photo--input--container");
-
-    img.onload = () => {
-        const frame = document.createElement("img");
-        frame.classList.add("detection-frame");
-        frame.id = `frame-${object.id}`;
-
-        frame.src = "icons/fulcrum_frame_new.svg";
-        frame.style.zIndex = "1000";
-        frame.style.pointerEvents = "none";
-        frame.style.position = "absolute";
-        frame.style.left = `${_x}px`;
-        frame.style.top = `${_y}px`;
-        frame.style.width = `${_width}px`;
-        frame.style.height = `${_height}px`;
-        photoContainer.appendChild(frame);
-    };
-
-    img.src = "icons/fulcrum_frame_new.svg";
-}
-
-export function imageClick(e) {
-    console.log(e);
-    // let val = wasDetectionClicked(e, activeView);
-    // if (val.wasClicked) {
-    //     updateVisibility(val.id, activeView);
-    //     // toggleVisibility(val.id);
-    //     // console.log(updateShowingValue(val.wasClicked, val.id));
-    // }
-}
 
 function clearCanvas(canvas) {
     const ctx = canvas.getContext("2d");
@@ -65,29 +31,6 @@ export function toggleVisibility(id, toggleResult, toggleDetection) {
         const detection = document.querySelector(`#frame-${id}`);
         detection.classList.toggle("hidden");
     }
-}
-
-export function drawResult(object) {
-    const { _x, _y, _width, _height } = object.squareBox;
-    const photoContainer = document.querySelector("#photo--input--container");
-    // const resultCanvas = document.createElement("canvas");
-    const resultCanvas = object.result;
-    const ctx = resultCanvas.getContext("2d");
-    // ctx.drawImage(object.result, _x, _y, _width, _height);
-
-    resultCanvas.classList.add("result-canvas");
-    resultCanvas.id = `result-${object.id}`;
-    resultCanvas.style.position = "absolute";
-    resultCanvas.style.zIndex = "999";
-    resultCanvas.style.pointerEvents = "none";
-    resultCanvas.style.left = `${_x}px`;
-    resultCanvas.style.top = `${_y}px`;
-    resultCanvas.style.width = `${_width}px`;
-    resultCanvas.style.height = `${_height}px`;
-    photoContainer.appendChild(resultCanvas);
-    // document.body.appendChild(object.result);
-
-    return resultCanvas;
 }
 
 export function wasDetectionClicked(e) {
@@ -139,47 +82,6 @@ export async function regenerateFace(object) {
             updateResult();
         }
     );
-}
-
-export function createCanvasLayers(image, width, height) {
-    const container = document.querySelector("#photo--input--container");
-
-    resultCanvas = faceapi.createCanvasFromMedia(image);
-    resultCanvas.classList.add("result-layer");
-    resultCanvas.id = "result--canvas";
-    const resCtx = resultCanvas.getContext("2d");
-    resCtx.clearRect(0, 0, width, height);
-
-    detectionsCanvas = faceapi.createCanvasFromMedia(image);
-    detectionsCanvas.classList.add("result-layer");
-    detectionsCanvas.id = "detections--canvas";
-    detectionsCanvas.addEventListener("click", (e) => wasDetectionClicked(e));
-
-    resultCanvas.width = width;
-    resultCanvas.height = height;
-    detectionsCanvas.width = width;
-    detectionsCanvas.height = height;
-
-    container.append(resultCanvas, detectionsCanvas);
-
-    return detectionsCanvas;
-}
-
-export function canvasToViewport(bounds, canvas, parent) {
-    let { x, y, width, height } = bounds;
-
-    const parentWidth = parent.offsetWidth;
-    const parentHeight = parent.offsetHeight;
-
-    const xRatio = parentWidth / canvas.width;
-    const yRatio = parentHeight / canvas.height;
-
-    x *= xRatio;
-    y *= yRatio;
-    const widthScaled = width * xRatio;
-    const heightScaled = height * yRatio;
-
-    return { x, y, width: widthScaled, height: heightScaled };
 }
 
 export function adjustDetectionBoxes(box) {
@@ -274,6 +176,43 @@ export function featherEdges(canvas) {
     // ctx.fillRect(0, 0, leftGradientWidth, canvas.height);
 }
 
+export function anonImgFromCanvas(canvas) {
+    canvas.crossOrigin = "Anonymous";
+
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = canvas.toDataURL();
+
+    img.onload = () => {
+        return img;
+    };
+}
+
+export function drawCanvasToCanvas(sourceCanvas, destinationCanvas, bounds) {
+    const srcCtx = sourceCanvas.getContext("2d");
+    const destCtx = destinationCanvas.getContext("2d");
+
+    if (!bounds) {
+        destCtx.drawImage(sourceCanvas, 0, 0);
+        return;
+    }
+
+    const { x, y, width, height } = bounds;
+    destCtx.drawImage(sourceCanvas, x, y, width, height);
+}
+
+export function drawImageToCanvas(sourceImage, destinationCanvas, bounds) {
+    const destCtx = destinationCanvas.getContext("2d");
+
+    if (!bounds) {
+        destCtx.drawImage(sourceImage, 0, 0);
+        return;
+    }
+
+    const { x, y, width, height } = bounds;
+    destCtx.drawImage(sourceImage, x, y, width, height);
+}
+
 export function createMaskCanvas(face, squareCanvas) {
     const { width, height } = squareCanvas;
 
@@ -286,10 +225,10 @@ export function createMaskCanvas(face, squareCanvas) {
     ctx.fill();
     ctx.fillRect(0, 0, width, height);
 
-    const faceX = face.bounds.x;
-    const faceY = face.bounds.y;
+    const faceX = face.cvBounds.x;
+    const faceY = face.cvBounds.y;
 
-    const shiftedPositions = [...face.bounds.points.positions];
+    const shiftedPositions = [...face.cvBounds.points.positions];
     shiftedPositions.forEach((point) => {
         point._x -= faceX;
         point._y -= faceY;
@@ -303,8 +242,11 @@ export function createMaskCanvas(face, squareCanvas) {
 export function drawMask(canvas, points) {
     const ctx = canvas.getContext("2d");
     // let pointIndexes = pushValues(17, 26).concat(pushValues(16, 0));
+    const multiplier = globalControls.maskRadiusFactor;
+    // const multiplier = calculateMultiplier()
 
-    const mouthWidth = distanceBetweenPoints(points[60], points[64]) * 0.9;
+    const mouthWidth =
+        distanceBetweenPoints(points[60], points[64]) * multiplier;
     const mouthHeight = mouthWidth * 0.5;
 
     ctx.fillStyle = "black";

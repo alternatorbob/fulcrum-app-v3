@@ -1,4 +1,40 @@
 import { NavBar } from "./NavBar";
+import { ButtonComponent } from "./NavBar2";
+
+const buttons = {
+    cancel: { type: "span", attribute: "Cancel", callback: "handleCancel" },
+    download: {
+        type: "img",
+        attribute: "/icons/Download_Button.svg",
+        callback: "handleDownload",
+    },
+    done: { type: "span", attribute: "Edit", callback: "handleEdit" },
+
+    prompt: {
+        type: "img",
+        attribute: "icons/Edit_Prompt.svg",
+        callback: "handlePrompt",
+    },
+    regenerate: {
+        type: "img",
+        attribute: "icons/Regenerate_Button.svg",
+        callback: "handleRegenerate",
+    },
+    done: { type: "span", attribute: "Done", callback: "handleDone" },
+};
+
+export const addButtonComponents = (navBar) => {
+    for (const key in buttons) {
+        const btn = new ButtonComponent(
+            buttons[key].type,
+            buttons[key].attribute,
+            buttons[key].callback,
+            key
+        );
+
+        navBar.addComponent(btn);
+    }
+};
 
 export function createViews(states) {
     const appContainer = document.querySelector("#app");

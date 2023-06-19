@@ -1,7 +1,7 @@
 // import { adjustdetectionBoxes } from "./utils";
 import eventBus from "./EventBus.js";
 import { Loader } from "./UI";
-import { delay } from "./utils";
+import { calculatePercentageChange, delay, scaleValueDown } from "./utils";
 import { getState } from "./state";
 import { getPrompt } from "./getPrompt.js";
 import { featherEdges } from "./drawUtils.js";
@@ -10,7 +10,6 @@ export class Face {
     static instanceCount = 0;
     constructor(bounds, features, parent, scope) {
         Face.instanceCount++;
-        this.bounds = bounds;
         this.scope = scope;
         this.parent = parent;
         this.canvas = this.parent.querySelector("canvas");
@@ -173,18 +172,34 @@ export class Face {
     setSwappedFace(image) {
         console.log("SET SWAPPED FACE", image);
 
-        const size = Math.min(
+        let size = Math.max(this.scaledBounds.width, this.scaledBounds.height);
+
+        const percentage = calculatePercentageChange(
             this.scaledBounds.width,
             this.scaledBounds.height
         );
+
+        const scaleFactor =
+            (this.scaledBounds.width - this.scaledBounds.height) / 2;
+
+        const scaledHeight = scaleValueDown(
+            this.scaledBounds.height,
+            percentage
+        );
+
+        // console.log("size before: ", size);
+        // size = scaleValueDown(size, percentage);
+        // console.log("size after: ", size);
 
         const resultCanvas = document.createElement("canvas");
         const ctx = resultCanvas.getContext("2d");
         ctx.imageSmoothingEnabled = true;
 
         resultCanvas.classList.add("result");
-        resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
-        // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
+        // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
+        resultCanvas.style.cssText = `position: absolute; top: -0.35px; left: 0px; width: ${size}px; height: ${
+            size - scaleFactor
+        }px;`;
 
         // ctx.clearRect(0, 0, this.squareCanvas.width, this.squareCanvas.height);
         ctx.drawImage(
@@ -212,9 +227,9 @@ export class Face {
 
         // featherEdges(resultCanvas);
 
-        this.result = image;
-        console.log("this.result: ", this.result);
-        this.elem.appendChild(resultCanvas);
+        this.result = resultCanvas;
+        this.result.crossOrigin = "anonymous";
+        this.elem.insertBefore(this.result, this.elem.firstChild);
     }
 
     getPrompt(features) {

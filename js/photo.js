@@ -2,7 +2,13 @@ import * as faceapi from "face-api.js";
 import { emulateLoader, loadImage, random } from "./utils";
 import { Face } from "./internal";
 import { Loader } from "./UI";
-import { canvasToViewport, createMaskCanvas, invertColors } from "./drawUtils";
+import {
+    drawCanvasToCanvas,
+    createMaskCanvas,
+    invertColors,
+    anonImgFromCanvas,
+    drawImageToCanvas,
+} from "./drawUtils";
 import eventBus from "./EventBus";
 import { states, changeState } from "./state";
 import { inPaint } from "./replicate";
@@ -30,6 +36,10 @@ export class Photo {
         this.editMode = false;
 
         eventBus.subscribe("fileSelected", this.getFaces.bind(this));
+
+        eventBus.addEventListener("downloadResult", () => {
+            this.downloadResult();
+        });
     }
 
     async getFaces(src) {
@@ -44,6 +54,7 @@ export class Photo {
             .withFaceExpressions();
 
         detections = detections.filter(({ detection }) => {
+            console.log(detection);
             return detection._score > 0.6;
         });
 
@@ -89,7 +100,7 @@ export class Photo {
                 console.log("faceObj: ", faceObj);
                 const face = new Face(bounds, features, this.photoView, this);
 
-                const result = await this.swapFace(face);
+                const result = await this.swapFace(face, features);
                 face.setSwappedFace(result);
 
                 face.refreshCanvas = () => this.render();
@@ -101,7 +112,7 @@ export class Photo {
         this.setEditMode(this.editMode);
     }
 
-    async swapFace(face) {
+    async swapFace(face, features) {
         const loader = new Loader("swapping");
         loader.show();
 
@@ -119,12 +130,13 @@ export class Photo {
         const faceImage = scaledSquareCanvas.toDataURL();
         const maskImage = scaledMaskCanvas.toDataURL();
 
-        document.body.appendChild(scaledSquareCanvas);
-        document.body.appendChild(scaledMaskCanvas);
+        // document.body.appendChild(scaledSquareCanvas);
+        // document.body.appendChild(scaledMaskCanvas);
 
         // return scaledSquareCanvas;
-
-        return invertColors(squareCanvas);
+        let output = invertColors(squareCanvas);
+        face.setSwappedFace(output);
+        return output;
 
         const url = await inPaint(
             faceImage,
@@ -158,6 +170,49 @@ export class Photo {
         this.faces.forEach((face) => {
             face.setSelection(false);
         });
+    }
+
+    downloadResult() {
+        const link = document.createElement("a");
+        const result = this.drawDownloadResult(this.faces);
+
+        document.body.appendChild(result);
+
+        // link.href = result;
+        link.download = "made_with_FULCRUM.png";
+
+        console.log("result: ", result);
+        console.log("link: ", link);
+
+        // link.click();
+    }
+
+    drawDownloadResult(faces) {
+        faces.forEach((face) => {
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = face.result.width;
+            tempCanvas.height = face.result.height;
+
+            // const anonResult = anonImgFromCanvas(face.result);
+
+            drawCanvasToCanvas(face.result, this.cv, face.cvBounds);
+            // drawImageToCanvas(anonResult, this.cv, face.bounds)
+
+            // drawCanvasToCanvas(face.result, tempCanvas, face.cvBounds);
+            // drawCanvasToCanvas(tempCanvas, this.cv);
+            // this.c.drawImage(face.result, x, y, width, height);
+        });
+
+        return anonImgFromCanvas(this.cv);
+    }
+
+    clearAll() {
+        const faceInstances = document.querySelectorAll(".face");
+        if (faceInstances.length < 1) return;
+        console.log("should clear");
+        this.c.clearRect(0, 0, this.cv.width, this.cv.height);
+        this.faces = [];
+        faceInstances.forEach((instance) => instance.remove());
     }
 
     render() {

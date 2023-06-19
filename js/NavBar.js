@@ -1,16 +1,6 @@
 import { changeState, states, getState } from "./state.js";
 import eventBus from "./EventBus.js";
 
-// export class NavBar {
-//     constructor() {
-//         this.navBarElement = document.createElement("div");
-//         this.navBarElement.id = "navbar"; // Set the ID for the navigation bar
-//         document.body.appendChild(this.navBarElement); // Append the navigation bar to the document body
-//         // this.updateButtons(); // Update the buttons initially
-//         // this.applyStyles(); // Apply styles within the constructor
-//     }
-// }
-
 export class NavBar {
     constructor(switchActiveViewCallback) {
         this.switchActiveView = switchActiveViewCallback;
@@ -30,6 +20,13 @@ export class NavBar {
 
         switch (currentState) {
             case "detections":
+                this.navBarElement.innerHTML = `
+                <span id="cancel-button">Cancel</span>
+                
+                <span id="edit-button">Edit</span>
+            `;
+
+                this.attachListeners(currentState);
                 break;
 
             case "result":
@@ -89,6 +86,8 @@ export class NavBar {
                     .querySelector("#download-button")
                     .addEventListener("click", () => {
                         console.log("Download button clicked");
+
+                        eventBus.dispatchEvent("downloadResult");
                     });
 
                 const editButton = this.navBarElement
@@ -137,6 +136,16 @@ export class NavBar {
 
                 break;
         }
+    }
+
+    disableButton(button, callback) {
+        button.css.style.cssText = `opacity: 50%`;
+
+        button.updateButtonState();
+    }
+
+    enableButton(button, callback) {
+        button.css.style.cssText = `opacity: 100%`;
     }
 
     applyStyles() {

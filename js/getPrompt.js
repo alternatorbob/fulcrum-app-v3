@@ -23,7 +23,6 @@ export const negative_prompt = `
     worst quality, low quality, jpeg artifacts,
     ugly, duplicate, morbid, mutilated, poorly drawn face, mutation, deformed,
     blurry, dehydrated, crooked face,
-    wearing sunglasses,
     cloned face, disfigured,
     canvas frame, cartoon, ((multiple head)), ((bad art)), ((b&w)), weird colors,
     (((duplicate))), ((morbid)), ((mutilated)),

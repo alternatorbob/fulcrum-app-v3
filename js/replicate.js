@@ -1,3 +1,4 @@
+import { globalControls } from "../globalControls";
 import { delay } from "./utils";
 import { negative_prompt } from "./getPrompt";
 
@@ -5,7 +6,8 @@ export async function inPaint(canvas64, mask64, prompt, progressCB) {
     const formData = new FormData();
     //prompt gets age and gender and is generated here
 
-    const size = 128;
+    const size = globalControls.resultResolution.mid;
+    // const size = 128;
 
     formData.append("prompt", prompt);
     // formData.append("num_inference_steps integer", 1);
