@@ -5,7 +5,8 @@ import { Photo } from "./js/internal";
 import { NavBar } from "./js/internal";
 import { HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
-import { FullscreenPopup, IntroTransition } from "./js/UI";
+import { FullscreenPopup, IntroTransition, addButtonComponents } from "./js/UI";
+import { NavBar2 } from "./js/NavBar2";
 
 const loadModel = () => {
     return Promise.all([
@@ -17,15 +18,17 @@ const loadModel = () => {
     ]);
 };
 
-let homePage;
-let photoApp;
-let navBar;
+let homePage, photoApp, navBar;
+
 const setupViews = () => {
     const app = document.querySelector("#app");
 
     homePage = new HomePage(switchActiveView);
     photoApp = new Photo(app, switchActiveView);
     navBar = new NavBar(switchActiveView);
+
+    addButtonComponents(navBar);
+    navBar.render();
 };
 
 const initializeApp = async () => {
@@ -52,6 +55,8 @@ export async function switchActiveView(activeState = getState()) {
             homeDiv.style.display = "flex";
             photoDiv.classList.add("hidden");
 
+            photoApp.clearAll();
+
             // await delay(3000);
             // changeState(states.DETECTIONS);
             // switchActiveView();
@@ -73,6 +78,8 @@ export async function switchActiveView(activeState = getState()) {
             // await photoApp.swapFaces();
 
             photoApp.setEditMode(false);
+            // navBar.render();
+
             //call faceSwap api
             navBar.updateButtons();
 
