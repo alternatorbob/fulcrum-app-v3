@@ -307,7 +307,7 @@ export function invertColors(canvas) {
     invertedCanvas.height = height;
 
     // Apply the 'invert' filter to invert the colors
-    invertedContext.filter = "invert(100%)";
+    // invertedContext.filter = "invert(100%)";
 
     // Draw the original canvas onto the inverted canvas with the filter applied
     invertedContext.drawImage(canvas, 0, 0);

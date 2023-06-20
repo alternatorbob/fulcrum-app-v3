@@ -133,9 +133,9 @@ export class Photo {
         // document.body.appendChild(scaledMaskCanvas);
 
         // return scaledSquareCanvas;
-        // let output = invertColors(squareCanvas);
-        // face.setSwappedFace(output);
-        // return output;
+        let output = invertColors(squareCanvas);
+        face.setSwappedFace(output);
+        return output;
 
         const url = await inPaint(
             faceImage,
