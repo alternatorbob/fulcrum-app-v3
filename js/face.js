@@ -217,21 +217,15 @@ export class Face {
         ctx.imageSmoothingEnabled = true;
 
         resultCanvas.classList.add("result");
+
+        resultCanvas.width = size;
+        resultCanvas.height = size;
+
         // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
         resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
 
         // ctx.clearRect(0, 0, this.squareCanvas.width, this.squareCanvas.height);
-        ctx.drawImage(
-            image,
-            0,
-            0,
-            image.width,
-            image.height,
-            0,
-            0,
-            resultCanvas.width,
-            resultCanvas.height
-        );
+        
         // ctx.drawImage(
         //     image,
         //     0,
@@ -244,7 +238,24 @@ export class Face {
         //     this.squareCanvas.height
         // );
 
-        // featherEdges(resultCanvas);
+        featherEdges(resultCanvas);
+
+        ctx.save()
+        ctx.globalCompositeOperation = "source-atop";
+
+        ctx.drawImage(
+            image,
+            0,
+            0,
+            image.width,
+            image.height,
+            0,
+            0,
+            resultCanvas.width,
+            resultCanvas.height
+        );
+
+        ctx.restore()
 
         this.result = resultCanvas;
         this.result.crossOrigin = "anonymous";

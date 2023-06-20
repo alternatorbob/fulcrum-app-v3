@@ -133,9 +133,9 @@ export class Photo {
         // document.body.appendChild(scaledMaskCanvas);
 
         // return scaledSquareCanvas;
-        let output = invertColors(squareCanvas);
-        face.setSwappedFace(output);
-        return output;
+        // let output = invertColors(squareCanvas);
+        // face.setSwappedFace(output);
+        // return output;
 
         const url = await inPaint(
             faceImage,
@@ -172,18 +172,17 @@ export class Photo {
     }
 
     downloadResult() {
+        this.drawDownloadResult(this.faces);
+        
         const link = document.createElement("a");
-        const result = this.drawDownloadResult(this.faces);
 
-        document.body.appendChild(result);
-
-        // link.href = result;
+        link.href = this.cv.toDataURL();
         link.download = "made_with_FULCRUM.png";
 
-        console.log("result: ", result);
+        // console.log("result: ", result);
         console.log("link: ", link);
 
-        // link.click();
+        link.click();
     }
 
     drawDownloadResult(faces) {
@@ -201,8 +200,6 @@ export class Photo {
             // drawCanvasToCanvas(tempCanvas, this.cv);
             // this.c.drawImage(face.result, x, y, width, height);
         });
-
-        return anonImgFromCanvas(this.cv);
     }
 
     clearAll() {

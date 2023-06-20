@@ -113,7 +113,25 @@ function drawEllipse(ctx, x, y, width, height) {
 }
 
 export function featherEdges(canvas) {
+
     const ctx = canvas.getContext("2d");
+    const margin = 15;
+
+    ctx.save()
+
+    ctx.filter = `blur(${margin/4}px)`
+    ctx.fillStyle = "black";
+
+    ctx.fillRect(
+        margin,
+        margin,
+        canvas.width - margin * 2,
+        canvas.height - margin * 2
+    );
+
+    ctx.restore()
+
+    return;
 
     const ratio = 0.1; // Adjust this value to control the amount of feathering (0 to 1)
 
@@ -151,7 +169,7 @@ export function featherEdges(canvas) {
     gradientLeft.addColorStop(1, "rgba(0, 0, 0, 0)");
 
     // Apply gradients to each side
-    ctx.globalCompositeOperation = "destination-out";
+    // ctx.globalCompositeOperation = "destination-out";
 
     ctx.fillStyle = gradientTop;
     ctx.fillRect(0, 0, canvas.width, topGradientHeight);
@@ -177,15 +195,14 @@ export function featherEdges(canvas) {
 }
 
 export function anonImgFromCanvas(canvas) {
-    canvas.crossOrigin = "anonymous";
-
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = canvas.toDataURL();
-
-    img.onload = () => {
-        return img;
-    };
+    // return new Promise(resolve => {
+    //     const img = new Image();
+    //     img.crossOrigin = "anonymous";
+    //     img.src = ;
+    //     img.onload = () => {
+    //         resolve(img);
+    //     };
+    // })
 }
 
 export function drawCanvasToCanvas(sourceCanvas, destinationCanvas, bounds) {
@@ -198,7 +215,8 @@ export function drawCanvasToCanvas(sourceCanvas, destinationCanvas, bounds) {
     }
 
     const { x, y, width, height } = bounds;
-    destCtx.drawImage(sourceCanvas, x, y, width, height);
+    const size = Math.max(width, height);
+    destCtx.drawImage(sourceCanvas, x, y, size, size);
 }
 
 export function drawImageToCanvas(sourceImage, destinationCanvas, bounds) {
