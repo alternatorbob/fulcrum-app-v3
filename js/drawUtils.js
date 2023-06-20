@@ -177,10 +177,10 @@ export function featherEdges(canvas) {
 }
 
 export function anonImgFromCanvas(canvas) {
-    canvas.crossOrigin = "Anonymous";
+    canvas.crossOrigin = "anonymous";
 
     const img = new Image();
-    img.crossOrigin = "Anonymous";
+    img.crossOrigin = "anonymous";
     img.src = canvas.toDataURL();
 
     img.onload = () => {
