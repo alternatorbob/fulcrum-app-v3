@@ -1,14 +1,22 @@
 // import { adjustdetectionBoxes } from "./utils";
 import eventBus from "./EventBus.js";
 import { Loader } from "./UI";
-import { calculatePercentageChange, delay, scaleValueDown } from "./utils";
+import {
+    calculatePercentageChange,
+    delay,
+    scaleValueDown,
+    scaleValueUp,
+} from "./utils";
 import { getState } from "./state";
 import { getPrompt } from "./getPrompt.js";
 import { featherEdges } from "./drawUtils.js";
+import { globalControls } from "../globalControls.js";
 
 export class Face {
     static instanceCount = 0;
     constructor(bounds, features, parent, scope) {
+        this.offset = globalControls.faceFrameOffsetPercentage;
+
         Face.instanceCount++;
         this.scope = scope;
         this.parent = parent;
@@ -30,7 +38,20 @@ export class Face {
 
         this.selectionBox = new Image();
         this.selectionBox.onload = () => {
+            // const xyOffset = {
+            //     x: scaleValueDown(this.scaledBounds.x, this.offset),
+            //     y: scaleValueDown(this.scaledBounds.y, this.offset),
+            // };
+
+            // const whOffset = {
+            //     w: scaleValueUp(this.scaledBounds.width, this.offset),
+            //     h: scaleValueUp(this.scaledBounds.height, this.offset),
+            // };
+
+            // console.log(xyOffset, whOffset);
+
             this.elem.style.cssText = `top: ${this.scaledBounds.y}px; left: ${this.scaledBounds.x}px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px`;
+            // this.elem.style.cssText = `top: ${xyOffset.y}px; left: ${xyOffset.x}px; width: ${whOffset.w}px; height: ${whOffset.h}px`;
 
             const { x, y, width, height } = this.cvBounds;
             this.selectionBox.width = this.scaledBounds.width;
