@@ -224,23 +224,9 @@ export class Face {
         // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
         resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
 
-        // ctx.clearRect(0, 0, this.squareCanvas.width, this.squareCanvas.height);
-        
-        // ctx.drawImage(
-        //     image,
-        //     0,
-        //     0,
-        //     image.width,
-        //     image.height,
-        //     0,
-        //     0,
-        //     this.squareCanvas.width,
-        //     this.squareCanvas.height
-        // );
-
         featherEdges(resultCanvas);
 
-        ctx.save()
+        ctx.save();
         ctx.globalCompositeOperation = "source-atop";
 
         ctx.drawImage(
@@ -255,7 +241,7 @@ export class Face {
             resultCanvas.height
         );
 
-        ctx.restore()
+        ctx.restore();
 
         this.result = resultCanvas;
         this.result.crossOrigin = "anonymous";

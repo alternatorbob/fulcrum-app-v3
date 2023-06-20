@@ -16,62 +16,9 @@ let resultCanvas, detectionsCanvas;
 export let activeObject;
 export let hiddenDetectionObjects = [];
 
-function clearCanvas(canvas) {
+export function clearCanvas(canvas) {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-export function toggleVisibility(id, toggleResult, toggleDetection) {
-    if (!toggleResult) {
-        const result = document.querySelector(`#result-${id}`);
-        result.classList.toggle("hidden");
-    }
-
-    if (!toggleDetection) {
-        const detection = document.querySelector(`#frame-${id}`);
-        detection.classList.toggle("hidden");
-    }
-}
-
-export function wasDetectionClicked(e) {
-    for (let i = 0; i < detectionObjects.length; i++) {
-        const object = detectionObjects[i];
-        const { _x, _y, _width, _height } = object.detectionBox;
-        console.log(object);
-        if (
-            e.offsetX > _x &&
-            e.offsetX < _x + _width &&
-            e.offsetY > _y &&
-            e.offsetY < _y + _height
-        ) {
-            return { wasClicked: true, id: object.id };
-        }
-    }
-    return false;
-}
-
-export function updateVisibility(id, activeView) {
-    for (let i = 0; i < detectionObjects.length; i++) {
-        const object = detectionObjects[i];
-        let { detection, result } = object.isShowing;
-
-        if (object.id === id) {
-            switch (activeView) {
-                case "result":
-                    console.log("updateVisibility: result");
-                    detection = !detection;
-                    result = !result;
-
-                    break;
-
-                case "edit":
-                    console.log("updateVisibility: edit");
-                    detection = !detection;
-                    break;
-            }
-            toggleVisibility(object.id, detection, result);
-        }
-    }
 }
 
 export async function regenerateFace(object) {
@@ -113,13 +60,12 @@ function drawEllipse(ctx, x, y, width, height) {
 }
 
 export function featherEdges(canvas) {
-
     const ctx = canvas.getContext("2d");
     const margin = 15;
 
-    ctx.save()
+    ctx.save();
 
-    ctx.filter = `blur(${margin/4}px)`
+    ctx.filter = `blur(${margin / 4}px)`;
     ctx.fillStyle = "black";
 
     ctx.fillRect(
@@ -129,80 +75,9 @@ export function featherEdges(canvas) {
         canvas.height - margin * 2
     );
 
-    ctx.restore()
+    ctx.restore();
 
     return;
-
-    const ratio = 0.1; // Adjust this value to control the amount of feathering (0 to 1)
-
-    // Calculate gradient dimensions based on the canvas size and ratio
-    const topGradientHeight = canvas.height * ratio;
-    const bottomGradientHeight = canvas.height * ratio;
-    const leftGradientWidth = canvas.width * ratio;
-    const rightGradientWidth = canvas.width * ratio;
-
-    // Create linear gradients for each side
-    const gradientTop = ctx.createLinearGradient(0, 0, 0, topGradientHeight);
-    gradientTop.addColorStop(0, "rgba(0, 0, 0, 1)"); // Opaque black
-    gradientTop.addColorStop(1, "rgba(0, 0, 0, 0)"); // Transparent black
-
-    const gradientRight = ctx.createLinearGradient(
-        canvas.width - rightGradientWidth,
-        0,
-        canvas.width,
-        0
-    );
-    gradientRight.addColorStop(0, "rgba(0, 0, 0, 1)");
-    gradientRight.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-    const gradientBottom = ctx.createLinearGradient(
-        0,
-        canvas.height - bottomGradientHeight,
-        0,
-        canvas.height
-    );
-    gradientBottom.addColorStop(1, "rgba(0, 0, 0, 0)");
-    gradientBottom.addColorStop(0, "rgba(0, 0, 0, 1)");
-
-    const gradientLeft = ctx.createLinearGradient(0, 0, leftGradientWidth, 0);
-    gradientLeft.addColorStop(0, "rgba(0, 0, 0, 1)");
-    gradientLeft.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-    // Apply gradients to each side
-    // ctx.globalCompositeOperation = "destination-out";
-
-    ctx.fillStyle = gradientTop;
-    ctx.fillRect(0, 0, canvas.width, topGradientHeight);
-
-    // ctx.fillStyle = gradientRight;
-    // ctx.fillRect(
-    //     canvas.width - rightGradientWidth,
-    //     0,
-    //     rightGradientWidth,
-    //     canvas.height
-    // );
-
-    ctx.fillStyle = gradientBottom;
-    ctx.fillRect(
-        0,
-        canvas.height - bottomGradientHeight,
-        canvas.width,
-        bottomGradientHeight
-    );
-
-    // ctx.fillStyle = gradientLeft;
-    // ctx.fillRect(0, 0, leftGradientWidth, canvas.height);
-}
-
-export function anonImgFromCanvas(canvas) {
-    // return new Promise(resolve => {
-    //     const img = new Image();
-    //     img.crossOrigin = "anonymous";
-    //     img.src = ;
-    //     img.onload = () => {
-    //         resolve(img);
-    //     };
-    // })
 }
 
 export function drawCanvasToCanvas(sourceCanvas, destinationCanvas, bounds) {
@@ -349,26 +224,4 @@ export function invertColors(canvas) {
 
     // Return the inverted canvas
     return invertedCanvas;
-}
-
-export function applyInvertFilterAndRandomSquares(canvas) {
-    const context = canvas.getContext("2d");
-    const { width, height } = canvas;
-
-    // Apply the invert filter to the canvas
-    context.filter = "invert(100%)";
-    context.drawImage(canvas, 0, 0);
-
-    // Generate and draw random squares
-    const numSquares = 5;
-    const squareSize = Math.min(width, height) / 4; // Adjust the size as needed
-    context.fillStyle = "red"; // Set the square color
-
-    for (let i = 0; i < numSquares; i++) {
-        const randomX = Math.random() * (width - squareSize);
-        const randomY = Math.random() * (height - squareSize);
-
-        // Draw the square
-        context.fillRect(randomX, randomY, squareSize, squareSize);
-    }
 }

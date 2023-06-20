@@ -157,6 +157,7 @@ export class Loader {
         this.loaderElement.style.transition = "opacity 0.3s, transform 0.3s";
         this.loaderElement.style.pointerEvents = "none";
         this.loaderElement.style.position = "fixed";
+        this.loaderElement.style.zIndex = "9999";
         this.loaderElement.style.bottom = "80px";
         this.loaderElement.style.left = "47.55%";
         this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";

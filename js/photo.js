@@ -6,7 +6,6 @@ import {
     drawCanvasToCanvas,
     createMaskCanvas,
     invertColors,
-    anonImgFromCanvas,
     drawImageToCanvas,
 } from "./drawUtils";
 import eventBus from "./EventBus";
@@ -99,7 +98,12 @@ export class Photo {
                 console.log("faceObj: ", faceObj);
                 const face = new Face(bounds, features, this.photoView, this);
 
+                //start loading animation
+
                 const result = await this.swapFace(face, features);
+
+                //end loading animation
+
                 face.setSwappedFace(result);
 
                 face.refreshCanvas = () => this.render();
@@ -133,9 +137,14 @@ export class Photo {
         // document.body.appendChild(scaledMaskCanvas);
 
         // return scaledSquareCanvas;
-        // let output = invertColors(squareCanvas);
-        // face.setSwappedFace(output);
-        // return output;
+
+        await emulateLoader(500);
+        let output = invertColors(squareCanvas);
+        face.setSwappedFace(output);
+
+        loader.hide();
+
+        return output;
 
         const url = await inPaint(
             faceImage,
@@ -173,7 +182,7 @@ export class Photo {
 
     downloadResult() {
         this.drawDownloadResult(this.faces);
-        
+
         const link = document.createElement("a");
 
         link.href = this.cv.toDataURL();

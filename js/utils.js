@@ -147,7 +147,7 @@ export function random(a, b) {
     return Math.random() * (b - a) + a;
 }
 
-export async function emulateLoader(duration, interval) {
+export async function emulateLoader(interval) {
     let percentage = 0;
 
     // Helper function to delay execution
@@ -158,7 +158,6 @@ export async function emulateLoader(duration, interval) {
         await delay(interval);
 
         // Increment the percentage
-        // percentage += Math.floor(Math.random(7, 12));
         percentage += Math.floor(Math.random() * 6) + 7;
 
         // Ensure the percentage doesn't exceed 100
