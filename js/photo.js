@@ -54,7 +54,6 @@ export class Photo {
             .withFaceExpressions();
 
         detections = detections.filter(({ detection }) => {
-            console.log(detection);
             return detection._score > 0.6;
         });
 
@@ -134,9 +133,9 @@ export class Photo {
         // document.body.appendChild(scaledMaskCanvas);
 
         // return scaledSquareCanvas;
-        let output = invertColors(squareCanvas);
-        face.setSwappedFace(output);
-        return output;
+        // let output = invertColors(squareCanvas);
+        // face.setSwappedFace(output);
+        // return output;
 
         const url = await inPaint(
             faceImage,

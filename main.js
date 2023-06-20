@@ -27,8 +27,8 @@ const setupViews = () => {
     photoApp = new Photo(app, switchActiveView);
     navBar = new NavBar(switchActiveView);
 
-    addButtonComponents(navBar);
-    navBar.render();
+    // addButtonComponents(navBar);
+    // navBar.render();
 };
 
 const initializeApp = async () => {

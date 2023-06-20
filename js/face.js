@@ -197,9 +197,7 @@ export class Face {
 
         resultCanvas.classList.add("result");
         // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
-        resultCanvas.style.cssText = `position: absolute; top: -0.35px; left: 0px; width: ${size}px; height: ${
-            size - scaleFactor
-        }px;`;
+        resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
 
         // ctx.clearRect(0, 0, this.squareCanvas.width, this.squareCanvas.height);
         ctx.drawImage(

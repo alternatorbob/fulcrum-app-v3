@@ -118,6 +118,8 @@ export class Loader {
     generateHTML() {
         const loaderDiv = document.createElement("div");
         loaderDiv.className = "lds-spinner";
+        loaderDiv.style.position = "absolute";
+        loaderDiv.style.zIndex = "1000";
 
         for (let i = 0; i < 16; i++) {
             const loaderChild = document.createElement("div");
@@ -128,7 +130,7 @@ export class Loader {
         const textContainer = document.createElement("div");
 
         textContainer.style.position = "absolute";
-        textContainer.style.zIndes = "1000";
+        textContainer.style.zIndex = "1000";
         textContainer.style.pointerEvents = "none";
         textContainer.style.top = "65%";
         textContainer.style.left = "65%";
