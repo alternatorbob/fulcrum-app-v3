@@ -9,6 +9,9 @@ export const states = {
 let currState = states.HOME;
 
 export function changeState(newState) {
+
+    document.body.dataset.state = newState;
+
     currState = newState;
 }
 

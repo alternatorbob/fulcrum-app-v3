@@ -5,6 +5,16 @@
     height: 100vh;
 }
 
+body.loading .loading-dep {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+body[data-state="result"] {
+    
+}
+
+
 .nav-bar {
     display: flex;
     justify-content: space-between;

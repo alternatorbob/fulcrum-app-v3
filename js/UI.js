@@ -9,7 +9,7 @@ const buttons = {
         attribute: "/icons/Download_Button.svg",
         callback: "handleDownload",
     },
-    done: { type: "span", attribute: "Edit", callback: "handleEdit" },
+    edit: { type: "span", attribute: "Edit", callback: "handleEdit" },
 
     prompt: {
         type: "img",
@@ -169,6 +169,9 @@ export class Loader {
             document.body.appendChild(this.loaderElement);
         }
 
+        document.body.classList.add('loading')
+
+
         this.loaderElement.style.fontSize = "10px";
         this.loaderElement.style.opacity = "0";
         // this.loaderElement.style.transform = "scale(0.6)";
@@ -190,6 +193,8 @@ export class Loader {
         if (!this.loaderElement) {
             return;
         }
+
+        document.body.classList.remove('loading')
 
         this.loaderElement.style.opacity = "0";
         this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";
@@ -363,10 +368,10 @@ export class IntroTransition {
 //     }
 // };
 
-window.screen.orientation.onchange = function () {
-    if (window.screen.orientation.type.includes("landscape")) {
-        document.body.style.backgroundColor = "blue";
-    } else if (window.screen.orientation.type.includes("portrait")) {
-        document.body.style.backgroundColor = "black";
-    }
-};
+// window.screen.orientation.onchange = function () {
+//     if (window.screen.orientation.type.includes("landscape")) {
+//         document.body.style.backgroundColor = "blue";
+//     } else if (window.screen.orientation.type.includes("portrait")) {
+//         document.body.style.backgroundColor = "black";
+//     }
+// };

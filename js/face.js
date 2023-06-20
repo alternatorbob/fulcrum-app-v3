@@ -221,6 +221,7 @@ export class Face {
         resultCanvas.width = size;
         resultCanvas.height = size;
 
+
         resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
         // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
 

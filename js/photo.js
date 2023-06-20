@@ -157,10 +157,10 @@ export class Photo {
 
         // return scaledSquareCanvas;
 
-        await emulateLoader(100);
-        let output = invertColors(squareCanvas);
-        loader.hide();
-        return output;
+        // await emulateLoader(100);
+        // let output = invertColors(squareCanvas);
+        // loader.hide();
+        // return output;
 
         const url = await inPaint(
             faceImage,

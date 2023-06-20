@@ -1,5 +1,7 @@
 import "./css/main.css";
 import * as faceapi from "face-api.js";
+// import "./js/context-filter-polyfill";
+
 import { delay, updatePixelRatio } from "./js/utils";
 import { Photo, NavBar, HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
