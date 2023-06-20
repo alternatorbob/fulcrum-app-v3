@@ -1,6 +1,6 @@
 export const globalControls = {
     maskRadiusFactor: 1.0,
-    resultResolution: 512,
+    resultResolution: 128,
     resultResolutionObject: {
         vlow: 64,
         low: 128,

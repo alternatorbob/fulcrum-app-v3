@@ -1,5 +1,5 @@
 import * as faceapi from "face-api.js";
-import { emulateLoader, loadImage, random } from "./utils";
+import { emulateLoader, getNumberFromString, loadImage, random } from "./utils";
 import { Face } from "./internal";
 import { Loader, SystemMessage } from "./UI";
 import {
@@ -30,15 +30,23 @@ export class Photo {
         // parent.className = "photoContainer";
         this.parent = parent;
         this.faces = [];
+        this.swappedFaces = [];
         this.cv = canvas;
         this.c = canvas.getContext("2d");
         this.img = null;
         this.editMode = false;
 
+        this.lastClickedFace = null;
+        this.lastClickedFaceId = null;
+
         eventBus.subscribe("fileSelected", this.getFaces.bind(this));
 
         eventBus.addEventListener("downloadResult", () => {
             this.downloadResult();
+        });
+
+        eventBus.addEventListener("triggerRegenerate", () => {
+            this.triggerRegenerate();
         });
     }
 
@@ -123,6 +131,8 @@ export class Photo {
 
                 face.refreshCanvas = () => this.render();
 
+                this.swappedFaces.push(face);
+
                 return face;
             })
         );
@@ -134,7 +144,75 @@ export class Photo {
         // message.show()
     }
 
+    setLastClickedFace(id) {
+        // this.lastClickedFace =
+        this.swappedFaces.forEach((face) => {
+            console.log(face);
+
+            const faceId = getNumberFromString(face.elem.id);
+
+            if (faceId === id) {
+                this.lastClickedFace = face;
+                this.lastClickedFaceId = id;
+                return;
+            }
+        });
+    }
+
+    triggerRegenerate() {
+        this.faces.forEach((face) => {
+            const faceId = getNumberFromString(face.elem.id);
+
+            if (faceId === this.lastClickedFaceId) {
+                this.regenerateFace(face);
+                return;
+            }
+        });
+    }
+
+    async regenerateFace(face) {
+        console.log("from regenerateFace: ", face);
+
+        const prototype = Object.getPrototypeOf(face);
+
+        face.faceImage;
+        face.maskImage;
+
+        const loader = new Loader("swapping");
+        loader.show();
+
+        let output = invertColors(face.squareCanvas);
+        console.log("face.squareCanvas: ", face.squareCanvas);
+        loader.hide();
+
+        console.log("output", output);
+
+        prototype.setSwappedFace.call(this, output);
+
+        return output;
+
+        const url = await inPaint(
+            faceImage,
+            maskImage,
+            face.prompt,
+            (value) => {
+                const lines = value.split("\n").filter(Boolean);
+                const lastLine = lines[lines.length - 1];
+                let number = 0;
+                if (lastLine) number = Number(lastLine.split("%")[0]);
+                // console.log("number: ", number);
+                console.log("value: ", value);
+            }
+        );
+
+        loader.hide();
+        return loadImage(url);
+
+        prototype.setSwappedFace.call(result);
+    }
+
     async swapFace(face, features) {
+        console.log('from swapFace" ', face);
         const loader = new Loader("swapping");
         loader.show();
 
@@ -152,15 +230,18 @@ export class Photo {
         const faceImage = scaledSquareCanvas.toDataURL();
         const maskImage = scaledMaskCanvas.toDataURL();
 
+        face.faceImage = faceImage;
+        face.maskImage = maskImage;
+
         // document.body.appendChild(scaledSquareCanvas);
         // document.body.appendChild(scaledMaskCanvas);
 
         // return scaledSquareCanvas;
 
         // await emulateLoader(100);
-        // let output = invertColors(squareCanvas);
-        // loader.hide();
-        // return output;
+        let output = invertColors(squareCanvas);
+        loader.hide();
+        return output;
 
         const url = await inPaint(
             faceImage,

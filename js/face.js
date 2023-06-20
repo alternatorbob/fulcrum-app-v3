@@ -4,6 +4,7 @@ import { Loader } from "./UI";
 import {
     calculatePercentageChange,
     delay,
+    getNumberFromString,
     scaleValueDown,
     scaleValueUp,
 } from "./utils";
@@ -24,9 +25,12 @@ export class Face {
 
         this.cvBounds = bounds;
 
+        this.features = features;
+
         this.elem = document.createElement("div");
         this.elem.className = "face";
         this.elem.id = `face-${Face.instanceCount}`;
+        this.id = this.elem.id;
 
         this.scaledBounds = this.canvasToViewport(
             this.cvBounds,
@@ -35,6 +39,8 @@ export class Face {
         );
 
         this.squareCanvas;
+        this.faceImage;
+        this.faceImage;
 
         this.selectionBox = new Image();
         this.selectionBox.onload = () => {
@@ -63,7 +69,8 @@ export class Face {
         this.selectionBox.src = "icons/fulcrum_frame_new.svg";
 
         this.prompt = this.getPrompt(features);
-        this.result = null;
+        this.result = document.createElement("canvas");
+        this.result.classList.add("result");
 
         this.faceEnabled = true;
         this.editMode = false;
@@ -82,6 +89,11 @@ export class Face {
                     break;
                 case "edit":
                     this.scope.resetBoundingBoxes();
+
+                    const id = e.target.id;
+                    const number = getNumberFromString(id);
+
+                    this.scope.setLastClickedFace(number);
 
                     this.toggleSelection();
                     this.refreshCanvas();
@@ -190,6 +202,10 @@ export class Face {
         return tempCanvas;
     }
 
+    setRegeneratedFace(image) {
+        console.log("SET RENGENERATED FACE", image);
+    }
+
     setSwappedFace(image) {
         console.log("SET SWAPPED FACE", image);
 
@@ -212,23 +228,21 @@ export class Face {
         // size = scaleValueDown(size, percentage);
         // console.log("size after: ", size);
 
-        const resultCanvas = document.createElement("canvas");
-        const ctx = resultCanvas.getContext("2d");
+        const ctx = this.result.getContext("2d");
         // ctx.imageSmoothingEnabled = true;
 
-        resultCanvas.classList.add("result");
+        this.result.id = `result-${Face.instanceCount}`;
 
-        resultCanvas.width = size;
-        resultCanvas.height = size;
+        this.result.width = size;
+        this.result.height = size;
 
+        // this.result.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
+        this.result.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
 
-        resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
-        // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
-
-        featherEdges(resultCanvas);
+        // featherEdges(this.result);
 
         ctx.save();
-        ctx.globalCompositeOperation = "source-atop";
+        // ctx.globalCompositeOperation = "source-atop";
 
         ctx.drawImage(
             image,
@@ -238,13 +252,12 @@ export class Face {
             image.height,
             0,
             0,
-            resultCanvas.width,
-            resultCanvas.height
+            this.result.width,
+            this.result.height
         );
 
         ctx.restore();
 
-        this.result = resultCanvas;
         this.result.crossOrigin = "anonymous";
         this.elem.insertBefore(this.result, this.elem.firstChild);
     }

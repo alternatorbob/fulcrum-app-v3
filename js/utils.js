@@ -87,6 +87,10 @@ export function pushValues(start, end) {
     return tempArray;
 }
 
+export function getNumberFromString(string) {
+    return parseInt(string.match(/\d+/)[0]);
+}
+
 export function distanceBetweenPoints(point1, point2) {
     return Math.sqrt(
         Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)

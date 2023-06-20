@@ -123,6 +123,7 @@ export class NavBar {
                     .querySelector("#regenerate-button")
                     .addEventListener("click", () => {
                         console.log("Regenerate button clicked");
+                        eventBus.dispatchEvent("triggerRegenerate");
                     });
 
                 const doneButton = this.navBarElement

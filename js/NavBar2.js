@@ -168,12 +168,16 @@ export class NavBar2 {
             switch (currentState) {
                 case "detections":
                     if (id === "download") {
-                        console.log("component: ", component);
+                        component.show();
+                    } else {
+                        component.hide();
                     }
 
                     break;
                 case "result":
                     if (id === "download") {
+                        component.show();
+                    } else {
                         component.hide();
                     }
                     break;

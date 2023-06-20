@@ -169,8 +169,7 @@ export class Loader {
             document.body.appendChild(this.loaderElement);
         }
 
-        document.body.classList.add('loading')
-
+        document.body.classList.add("loading");
 
         this.loaderElement.style.fontSize = "10px";
         this.loaderElement.style.opacity = "0";
@@ -194,7 +193,7 @@ export class Loader {
             return;
         }
 
-        document.body.classList.remove('loading')
+        document.body.classList.remove("loading");
 
         this.loaderElement.style.opacity = "0";
         this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";

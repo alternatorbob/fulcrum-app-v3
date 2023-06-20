@@ -31,6 +31,7 @@ const setupViews = () => {
     homePage = new HomePage(switchActiveView);
     photoApp = new Photo(app, switchActiveView);
     navBar = new NavBar(switchActiveView);
+    // navBar = new NavBar2(switchActiveView);
 
     // addButtonComponents(navBar);
     // navBar.render();
