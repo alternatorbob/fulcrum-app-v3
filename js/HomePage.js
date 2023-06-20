@@ -1,6 +1,7 @@
 import { states } from "./state";
 import { changeState } from "./state";
 import eventBus from "./EventBus";
+import { Loader } from "./UI";
 
 class DivComponent {
     constructor(tagName, classNames = [], attributes = {}) {
@@ -44,19 +45,13 @@ export class HomePage {
     }
 
     createDivs() {
-        // Create the 'home page' div
         const homePageDiv = new DivComponent("div", ["home"], {
             style: "display: flex; flex-direction: column; align-items: center; height: 100vh;",
         });
 
-        // Create the 'logo' div
         const logoDiv = new DivComponent("div", ["logo"], {
             style: "margin-top: 60px",
         });
-
-        // logoDiv.addEventListener("click", (e) => {
-        //     console.log(e);
-        // });
 
         const logoImg = new ImageComponent("/icons/fulcrum_logo.svg", "", {
             style: "width: 5em",
@@ -65,10 +60,8 @@ export class HomePage {
         logoDiv.appendChild(logoImg.element);
         homePageDiv.appendChild(logoDiv.element);
 
-        // Create the 'home-screen-buttons' div
         const buttonsDiv = new DivComponent("div", ["home-screen-buttons"], {});
 
-        // Create the first 'camera-button' div
         const cameraButtonDiv1 = new DivComponent("div", ["camera-button"], {
             style: 'display: "flex"; flexDirection: "column"; alignItems: "center"; width: "38vw";',
         });
@@ -159,8 +152,13 @@ export class HomePage {
 
         [uploadInput, cameraInput].forEach((input) => {
             input.addEventListener("change", async (event) => {
+                const loader = new Loader("uploading");
+                loader.show();
+
                 const file = event.target.files[0];
                 const myImg = await onImageUpload(file);
+
+                loader.hide();
 
                 eventBus.publish("fileSelected", myImg);
             });

@@ -1,3 +1,4 @@
+import "../css/loader.css";
 import { NavBar } from "./NavBar";
 import { ButtonComponent } from "./NavBar2";
 
@@ -48,6 +49,156 @@ export function createViews(states) {
         }
         isFirst = false; // Update the flag after the first div
         appContainer.appendChild(myDiv);
+    }
+}
+
+export class SystemMessage {
+    constructor(text) {
+        this.text = text;
+        this.createMessage();
+        this.autoHideTimeout = null;
+    }
+
+    createMessage() {
+        this.message = document.createElement("div");
+        this.message.className = "system-message";
+        this.message.innerText = this.text;
+        document.querySelector("#app").appendChild(this.message);
+        this.applyStyles();
+        this.hide();
+    }
+
+    show() {
+        this.message.style.transition = "opacity 5.5s, transform 0.75s";
+        this.message.style.opacity = "1";
+        this.message.style.transform = "translateY(0)";
+    }
+
+    hide() {
+        this.message.style.transition = "opacity 0.5s, transform 0.75s";
+        this.message.style.opacity = "0";
+        this.message.style.transform = "translateY(-30%)";
+    }
+
+    showFor(duration) {
+        this.show();
+        if (this.autoHideTimeout) {
+            clearTimeout(this.autoHideTimeout);
+        }
+        this.autoHideTimeout = setTimeout(() => {
+            this.hide();
+        }, duration);
+    }
+
+    stopAutoHide() {
+        if (this.autoHideTimeout) {
+            clearTimeout(this.autoHideTimeout);
+        }
+    }
+
+    calculateWidth() {
+        const textLength = this.text.length;
+        const averageCharacterWidth = 10; // Assuming an average width of 10 pixels per character
+        const minWidth = 120; // Minimum width of the message
+        return Math.max(minWidth, textLength * averageCharacterWidth);
+    }
+
+    applyStyles() {
+        const divWidth = this.calculateWidth();
+
+        this.message.style.position = "fixed";
+        this.message.style.top = "60px";
+        this.message.style.left = `calc(50% - ${divWidth / 2}px)`;
+        this.message.style.zIndex = "9999";
+        this.message.style.background = "black";
+        this.message.style.height = "40px";
+        this.message.style.width = `${this.calculateWidth()}px`;
+        this.message.style.color = "white";
+        this.message.style.textAlign = "center";
+        this.message.style.pointerEvents = "none";
+        this.message.style.userSelect = "none";
+        this.message.style.borderRadius = "4px";
+
+        // Center text vertically
+        this.message.style.display = "flex";
+        this.message.style.alignItems = "center";
+        this.message.style.justifyContent = "center";
+    }
+}
+
+export class Loader {
+    constructor(text) {
+        this.text = text;
+        this.loaderElement = null;
+    }
+
+    generateHTML() {
+        const loaderDiv = document.createElement("div");
+        loaderDiv.className = "lds-spinner";
+        // loaderDiv.style.position = "absolute";
+        loaderDiv.style.zIndex = "1000";
+
+        for (let i = 0; i < 16; i++) {
+            const loaderChild = document.createElement("div");
+
+            loaderDiv.appendChild(loaderChild);
+        }
+
+        const textNode = document.createTextNode(this.text);
+        const textContainer = document.createElement("div");
+
+        textContainer.style.position = "absolute";
+        textContainer.style.zIndex = "1000";
+        textContainer.style.pointerEvents = "none";
+        textContainer.style.top = "65%";
+        textContainer.style.left = "65%";
+        textContainer.style.transform = "translate(-50%, -50%)";
+
+        textContainer.appendChild(textNode);
+        loaderDiv.appendChild(textContainer);
+
+        this.loaderElement = loaderDiv;
+
+        return loaderDiv;
+    }
+
+    show() {
+        console.log("should show loader");
+        if (!this.loaderElement) {
+            this.loaderElement = this.generateHTML();
+            document.body.appendChild(this.loaderElement);
+        }
+
+        this.loaderElement.style.fontSize = "10px";
+        this.loaderElement.style.opacity = "0";
+        // this.loaderElement.style.transform = "scale(0.6)";
+        this.loaderElement.style.transition = "opacity 0.3s, transform 0.3s";
+        this.loaderElement.style.pointerEvents = "none";
+        this.loaderElement.style.position = "fixed";
+        this.loaderElement.style.zIndex = "9999";
+        // this.loaderElement.style.bottom = "80px";
+        this.loaderElement.style.left = "47.55%";
+        // this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";
+
+        setTimeout(() => {
+            this.loaderElement.style.opacity = "1";
+            this.loaderElement.style.transform = "translateX(-50%) scale(1)";
+        }, 10);
+    }
+
+    hide() {
+        if (!this.loaderElement) {
+            return;
+        }
+
+        this.loaderElement.style.opacity = "0";
+        this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";
+
+        setTimeout(() => {
+            if (this.loaderElement.parentNode) {
+                this.loaderElement.parentNode.removeChild(this.loaderElement);
+            }
+        }, 300);
     }
 }
 
@@ -105,81 +256,6 @@ export class FullscreenPopup {
         this.popup.style.transform = "translateY(100%)";
         setTimeout(() => {
             this.popup.style.display = "none";
-        }, 300);
-    }
-}
-
-export class Loader {
-    constructor(text) {
-        this.text = text;
-        this.loaderElement = null;
-    }
-
-    generateHTML() {
-        const loaderDiv = document.createElement("div");
-        loaderDiv.className = "lds-spinner";
-        loaderDiv.style.position = "absolute";
-        loaderDiv.style.zIndex = "1000";
-
-        for (let i = 0; i < 16; i++) {
-            const loaderChild = document.createElement("div");
-            loaderDiv.appendChild(loaderChild);
-        }
-
-        const textNode = document.createTextNode(this.text);
-        const textContainer = document.createElement("div");
-
-        textContainer.style.position = "absolute";
-        textContainer.style.zIndex = "1000";
-        textContainer.style.pointerEvents = "none";
-        textContainer.style.top = "65%";
-        textContainer.style.left = "65%";
-        textContainer.style.transform = "translate(-50%, -50%)";
-
-        textContainer.appendChild(textNode);
-        loaderDiv.appendChild(textContainer);
-
-        this.loaderElement = loaderDiv;
-
-        return loaderDiv;
-    }
-
-    show() {
-        console.log("should show loader");
-        if (!this.loaderElement) {
-            this.loaderElement = this.generateHTML();
-            document.body.appendChild(this.loaderElement);
-        }
-
-        this.loaderElement.style.fontSize = "10px";
-        this.loaderElement.style.opacity = "0";
-        this.loaderElement.style.transform = "scale(0.6)";
-        this.loaderElement.style.transition = "opacity 0.3s, transform 0.3s";
-        this.loaderElement.style.pointerEvents = "none";
-        this.loaderElement.style.position = "fixed";
-        this.loaderElement.style.zIndex = "9999";
-        this.loaderElement.style.bottom = "80px";
-        this.loaderElement.style.left = "47.55%";
-        this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";
-
-        setTimeout(() => {
-            this.loaderElement.style.opacity = "1";
-            this.loaderElement.style.transform = "translateX(-50%) scale(1)";
-        }, 10);
-    }
-
-    hide() {
-        if (!this.loaderElement) {
-            return;
-        }
-
-        this.loaderElement.style.opacity = "0";
-        this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";
-
-        setTimeout(() => {
-            if (this.loaderElement.parentNode) {
-                this.loaderElement.parentNode.removeChild(this.loaderElement);
-            }
         }, 300);
     }
 }
@@ -278,3 +354,19 @@ export class IntroTransition {
         }, 1000);
     }
 }
+
+// window.ScreenOrientation.onchange = function (e) {
+//     if (window.screen.orientation.type.includes("landscape")) {
+//         document.body.style.backgroundColor = "white";
+//     } else if (window.screen.orientation.type.includes("portrait")) {
+//         document.body.style.backgroundColor = "black";
+//     }
+// };
+
+window.screen.orientation.onchange = function () {
+    if (window.screen.orientation.type.includes("landscape")) {
+        document.body.style.backgroundColor = "blue";
+    } else if (window.screen.orientation.type.includes("portrait")) {
+        document.body.style.backgroundColor = "black";
+    }
+};

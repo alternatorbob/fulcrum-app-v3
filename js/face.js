@@ -214,15 +214,15 @@ export class Face {
 
         const resultCanvas = document.createElement("canvas");
         const ctx = resultCanvas.getContext("2d");
-        ctx.imageSmoothingEnabled = true;
+        // ctx.imageSmoothingEnabled = true;
 
         resultCanvas.classList.add("result");
 
         resultCanvas.width = size;
         resultCanvas.height = size;
 
-        // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
-        resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
+        resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
+        // resultCanvas.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
 
         featherEdges(resultCanvas);
 

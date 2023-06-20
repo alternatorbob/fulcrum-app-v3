@@ -1,11 +1,14 @@
 import "./css/main.css";
 import * as faceapi from "face-api.js";
 import { delay, updatePixelRatio } from "./js/utils";
-import { Photo } from "./js/internal";
-import { NavBar } from "./js/internal";
-import { HomePage } from "./js/internal";
+import { Photo, NavBar, HomePage } from "./js/internal";
 import { changeState, states, getState } from "./js/state.js";
-import { FullscreenPopup, IntroTransition, addButtonComponents } from "./js/UI";
+import {
+    FullscreenPopup,
+    IntroTransition,
+    addButtonComponents,
+    SystemMessage,
+} from "./js/UI";
 import { NavBar2 } from "./js/NavBar2";
 
 const loadModel = () => {
@@ -76,6 +79,8 @@ export async function switchActiveView(activeState = getState()) {
         case "result":
             console.log(`Current View: ${activeState}`);
             // await photoApp.swapFaces();
+            // const message = new SystemMessage("Tap a face to revert");
+            // message.showFor(750);
 
             photoApp.setEditMode(false);
             // navBar.render();
@@ -88,6 +93,9 @@ export async function switchActiveView(activeState = getState()) {
         case "edit":
             console.log(`Current View: ${activeState}`);
             photoApp.setEditMode(true);
+
+            const message = new SystemMessage("tap a face to edit");
+            message.showFor(3000);
 
             break;
 

@@ -1,20 +1,19 @@
 .lds-spinner {
-    color: official;
     display: inline-block;
     /* display: flex; */
     position: relative;
     position: fixed;
     z-index: 10000;
-    top: 0;
+    /* top: 0; */
     left: 0;
     width: 62px;
     height: 62px;
 }
-.lds-spinner div {
+.lds-spinner div:not(:last-child) {
     transform-origin: 40px 40px;
     animation: lds-spinner 1.2s linear infinite;
 }
-.lds-spinner div:after {
+.lds-spinner div:not(:last-child):after {
     content: " ";
     display: block;
     position: absolute;

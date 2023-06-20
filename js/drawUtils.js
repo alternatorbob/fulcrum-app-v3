@@ -65,8 +65,10 @@ export function featherEdges(canvas) {
 
     ctx.save();
 
-    ctx.filter = `blur(${margin / 4}px)`;
+    ctx.filter = `blur(${margin / 2}px)`;
     ctx.fillStyle = "black";
+
+    // ctx.globalCompositeOperation = "destination-in";
 
     ctx.fillRect(
         margin,

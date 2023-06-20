@@ -1,7 +1,7 @@
 import * as faceapi from "face-api.js";
 import { emulateLoader, loadImage, random } from "./utils";
 import { Face } from "./internal";
-import { Loader } from "./UI";
+import { Loader, SystemMessage } from "./UI";
 import {
     drawCanvasToCanvas,
     createMaskCanvas,
@@ -11,6 +11,7 @@ import {
 import eventBus from "./EventBus";
 import { states, changeState } from "./state";
 import { inPaint } from "./replicate";
+import { AnimatedCircles } from "./AnimatedCircles";
 
 export class Photo {
     constructor(parent, switchActiveView) {
@@ -42,6 +43,8 @@ export class Photo {
     }
 
     async getFaces(src) {
+        const loader = new Loader("detecting");
+        loader.show();
         this.img = src;
 
         const faces = [];
@@ -92,17 +95,29 @@ export class Photo {
         changeState(states.DETECTIONS);
         this.switchActiveView();
 
+        loader.hide();
+
         this.faces = await Promise.all(
             faces.map(async (faceObj) => {
                 const { bounds, features } = faceObj;
                 console.log("faceObj: ", faceObj);
                 const face = new Face(bounds, features, this.photoView, this);
+                console.log("face: ", face.elem);
 
-                //start loading animation
+                // const scaledBounds = face.canvasToViewport(
+                //     bounds,
+                //     this.cv,
+                //     this.photoView
+                // );
+                // console.log("scaledBounds: ", face.scaledBounds);
+
+                // const animatedCircles = new AnimatedCircles(face.elem, bounds);
+
+                // animatedCircles.show();
 
                 const result = await this.swapFace(face, features);
 
-                //end loading animation
+                // animatedCircles.hide();
 
                 face.setSwappedFace(result);
 
@@ -113,6 +128,10 @@ export class Photo {
         );
 
         this.setEditMode(this.editMode);
+
+        const message = new SystemMessage("tap face to keep original");
+        message.showFor(3000);
+        // message.show()
     }
 
     async swapFace(face, features) {
@@ -138,12 +157,9 @@ export class Photo {
 
         // return scaledSquareCanvas;
 
-        await emulateLoader(500);
+        await emulateLoader(100);
         let output = invertColors(squareCanvas);
-        face.setSwappedFace(output);
-
         loader.hide();
-
         return output;
 
         const url = await inPaint(
