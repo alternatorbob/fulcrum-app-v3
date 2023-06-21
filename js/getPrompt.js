@@ -1,8 +1,6 @@
 export function getPrompt(promptDetails) {
     const { gender, age, expression } = promptDetails;
 
-    console.log(gender, age, expression);
-
     let myPrompt =
         gender === "male"
             ? `A photorealistic man's portrait, is looking ${expression}, eyes are open, he`

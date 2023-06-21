@@ -108,9 +108,7 @@ export class Photo {
         this.faces = await Promise.all(
             faces.map(async (faceObj) => {
                 const { bounds, features } = faceObj;
-                console.log("faceObj: ", faceObj);
                 const face = new Face(bounds, features, this.photoView, this);
-                console.log("face: ", face.elem);
 
                 // const scaledBounds = face.canvasToViewport(
                 //     bounds,
@@ -137,6 +135,9 @@ export class Photo {
             })
         );
 
+        changeState(states.RESULT);
+        this.switchActiveView();
+
         this.setEditMode(this.editMode);
 
         const message = new SystemMessage("tap face to keep original");
@@ -145,7 +146,9 @@ export class Photo {
     }
 
     setLastClickedFace(id) {
-        // this.lastClickedFace =
+        changeState(states.EDITSELECTED);
+        this.switchActiveView();
+
         this.swappedFaces.forEach((face) => {
             console.log(face);
 
@@ -168,6 +171,55 @@ export class Photo {
                 return;
             }
         });
+    }
+
+    async swapFace(face, features) {
+        const loader = new Loader("swapping");
+        loader.show();
+
+        const squareCanvas = face.cropToSquare(this.cv, face.cvBounds);
+        face.squareCanvas = squareCanvas;
+
+        const maskCanvas = createMaskCanvas(face, squareCanvas);
+
+        const scaledSquareCanvas = face.createScaledCanvas(squareCanvas);
+        const scaledMaskCanvas = face.createScaledCanvas(maskCanvas);
+
+        // squareCanvas.width = maskCanvas.width = 512;
+        // squareCanvas.height = maskCanvas.height = 512;
+
+        const faceImage = scaledSquareCanvas.toDataURL();
+        const maskImage = scaledMaskCanvas.toDataURL();
+
+        face.faceImage = faceImage;
+        face.maskImage = maskImage;
+
+        // document.body.appendChild(scaledSquareCanvas);
+        // document.body.appendChild(scaledMaskCanvas);
+
+        // return scaledSquareCanvas;
+
+        await emulateLoader(500);
+        let output = invertColors(squareCanvas);
+        loader.hide();
+        return output;
+
+        const url = await inPaint(
+            faceImage,
+            maskImage,
+            face.prompt,
+            (value) => {
+                const lines = value.split("\n").filter(Boolean);
+                const lastLine = lines[lines.length - 1];
+                let number = 0;
+                if (lastLine) number = Number(lastLine.split("%")[0]);
+                // console.log("number: ", number);
+                console.log("value: ", value);
+            }
+        );
+
+        loader.hide();
+        return loadImage(url);
     }
 
     async regenerateFace(face) {
@@ -209,56 +261,6 @@ export class Photo {
         return loadImage(url);
 
         prototype.setSwappedFace.call(result);
-    }
-
-    async swapFace(face, features) {
-        console.log('from swapFace" ', face);
-        const loader = new Loader("swapping");
-        loader.show();
-
-        const squareCanvas = face.cropToSquare(this.cv, face.cvBounds);
-        face.squareCanvas = squareCanvas;
-
-        const maskCanvas = createMaskCanvas(face, squareCanvas);
-
-        const scaledSquareCanvas = face.createScaledCanvas(squareCanvas);
-        const scaledMaskCanvas = face.createScaledCanvas(maskCanvas);
-
-        // squareCanvas.width = maskCanvas.width = 512;
-        // squareCanvas.height = maskCanvas.height = 512;
-
-        const faceImage = scaledSquareCanvas.toDataURL();
-        const maskImage = scaledMaskCanvas.toDataURL();
-
-        face.faceImage = faceImage;
-        face.maskImage = maskImage;
-
-        // document.body.appendChild(scaledSquareCanvas);
-        // document.body.appendChild(scaledMaskCanvas);
-
-        // return scaledSquareCanvas;
-
-        // await emulateLoader(100);
-        let output = invertColors(squareCanvas);
-        loader.hide();
-        return output;
-
-        const url = await inPaint(
-            faceImage,
-            maskImage,
-            face.prompt,
-            (value) => {
-                const lines = value.split("\n").filter(Boolean);
-                const lastLine = lines[lines.length - 1];
-                let number = 0;
-                if (lastLine) number = Number(lastLine.split("%")[0]);
-                // console.log("number: ", number);
-                console.log("value: ", value);
-            }
-        );
-
-        loader.hide();
-        return loadImage(url);
     }
 
     getResult(faces) {

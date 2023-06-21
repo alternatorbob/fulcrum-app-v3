@@ -134,9 +134,8 @@ export class Loader {
 
     generateHTML() {
         const loaderDiv = document.createElement("div");
-        loaderDiv.className = "lds-spinner";
-        // loaderDiv.style.position = "absolute";
-        loaderDiv.style.zIndex = "1000";
+        const textNode = document.createTextNode(this.text);
+        const textContainer = document.createElement("div");
 
         for (let i = 0; i < 16; i++) {
             const loaderChild = document.createElement("div");
@@ -144,20 +143,26 @@ export class Loader {
             loaderDiv.appendChild(loaderChild);
         }
 
-        const textNode = document.createTextNode(this.text);
-        const textContainer = document.createElement("div");
+        textContainer.appendChild(textNode);
+        loaderDiv.appendChild(textContainer);
+
+        this.loaderElement = loaderDiv;
+
+        loaderDiv.className = "lds-spinner";
+        loaderDiv.style.position = "absolute";
+        loaderDiv.style.left = `calc(50% - ${39.5}px)`;
+        this.loaderElement.style.bottom = "84px";
+
+        // loaderDiv.style.left = "50%";
+        loaderDiv.style.zIndex = "1000";
 
         textContainer.style.position = "absolute";
+        textContainer.style.fontSize = "0.8em";
         textContainer.style.zIndex = "1000";
         textContainer.style.pointerEvents = "none";
         textContainer.style.top = "65%";
         textContainer.style.left = "65%";
         textContainer.style.transform = "translate(-50%, -50%)";
-
-        textContainer.appendChild(textNode);
-        loaderDiv.appendChild(textContainer);
-
-        this.loaderElement = loaderDiv;
 
         return loaderDiv;
     }
@@ -171,21 +176,21 @@ export class Loader {
 
         document.body.classList.add("loading");
 
-        this.loaderElement.style.fontSize = "10px";
         this.loaderElement.style.opacity = "0";
-        // this.loaderElement.style.transform = "scale(0.6)";
-        this.loaderElement.style.transition = "opacity 0.3s, transform 0.3s";
-        this.loaderElement.style.pointerEvents = "none";
-        this.loaderElement.style.position = "fixed";
-        this.loaderElement.style.zIndex = "9999";
-        // this.loaderElement.style.bottom = "80px";
-        this.loaderElement.style.left = "47.55%";
-        // this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";
+        this.loaderElement.style.transition = "opacity 0.55s, transform 0.3s";
+        this.loaderElement.style.transitionTimingFunction = "ease-in-out";
 
-        setTimeout(() => {
-            this.loaderElement.style.opacity = "1";
-            this.loaderElement.style.transform = "translateX(-50%) scale(1)";
-        }, 10);
+        this.loaderElement.style.pointerEvents = "none";
+        // this.loaderElement.style.position = "fixed";
+        // this.loaderElement.style.left = "47.55%";
+        // this.loaderElement.style.transform = "translateX(-50%)";
+
+        this.loaderElement.style.opacity = "1";
+        this.loaderElement.style.transition = "opacity 0.2s, transform 0.3s";
+
+        // this.loaderElement.style.transitionTimingFunction = "ease-in-out";
+
+        // this.loaderElement.style.transform = "translateY(-10%) scale(1)";
     }
 
     hide() {
@@ -196,7 +201,7 @@ export class Loader {
         document.body.classList.remove("loading");
 
         this.loaderElement.style.opacity = "0";
-        this.loaderElement.style.transform = "translateX(-50%) scale(0.6)";
+        // this.loaderElement.style.transform = "translateY(-10%) scale(0.8)";
 
         setTimeout(() => {
             if (this.loaderElement.parentNode) {

@@ -11,9 +11,7 @@ body.loading .loading-dep {
 }
 
 body[data-state="result"] {
-    
 }
-
 
 .nav-bar {
     display: flex;
@@ -29,10 +27,15 @@ body[data-state="result"] {
     align-items: center;
 }
 
-.home-screen-buttons {
+/* .home-screen-buttons {
     display: flex;
     margin-top: auto;
     margin-bottom: 80px;
+} */
+
+.button-disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .upload-btn {
@@ -47,7 +50,7 @@ body[data-state="result"] {
     text-align: center;
     align-self: center;
 
-    border: 0.75px solid #f5f5f5;
+    border: 0.8px solid #f5f5f5;
     border-radius: 100px;
     background: none;
     color: #f5f5f5;
@@ -156,6 +159,16 @@ body[data-state="result"] {
 
 #detections--canvas {
     z-index: 100;
+}
+
+#navbar > * {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+#navbar :last-child {
+    justify-content: flex-end;
 }
 
 /* OLD */

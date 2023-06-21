@@ -110,6 +110,7 @@ export class NavBar2 {
 
     addComponent(component) {
         this.components.push(component);
+        console.log("component array: ", component);
     }
 
     handleClick(handler) {
@@ -158,27 +159,33 @@ export class NavBar2 {
 
     render() {
         for (const component of this.components) {
+            const prototype = Object.getPrototypeOf(component);
             const id = component.element.id;
-            const currentState = getState;
+
+            const currentState = getState();
 
             if (!this.wasRendered) {
                 this.navBarElement.appendChild(component.render());
             }
 
+            console.log("currentState", currentState);
+
             switch (currentState) {
                 case "detections":
                     if (id === "download") {
-                        component.show();
+                        console.log(component);
+                        prototype.show.call();
                     } else {
-                        component.hide();
+                        prototype.hide.call();
                     }
 
                     break;
                 case "result":
                     if (id === "download") {
-                        component.show();
+                        console.log("component: ", component);
+                        prototype.show.call();
                     } else {
-                        component.hide();
+                        prototype.hide.call();
                     }
                     break;
                 case "edit":

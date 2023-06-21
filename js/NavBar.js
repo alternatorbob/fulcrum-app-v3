@@ -22,8 +22,8 @@ export class NavBar {
             case "detections":
                 this.navBarElement.innerHTML = `
                 <span id="cancel-button">Cancel</span>
+                <span></span>
                 
-                <span id="edit-button">Edit</span>
             `;
 
                 this.attachListeners(currentState);
@@ -32,15 +32,16 @@ export class NavBar {
             case "result":
                 this.navBarElement.innerHTML = `
                     <span id="cancel-button">Cancel</span>
+                    
                     <img
                         id="download-button"
                         src="/icons/Download_Button.svg"
                         alt=""
                         style="
-                            height: 28px;
-
+                            height: 36px;
                         "
                     />
+
                     <span id="edit-button">Edit</span>
                 `;
 
@@ -50,21 +51,47 @@ export class NavBar {
             case "edit":
                 this.navBarElement.innerHTML = `
                     <span id="cancel-button">Cancel</span>
-                    <img
-                        id="prompt-button"
-                        src="icons/Edit_Prompt.svg"
-                        alt=""
-                        style="height: 22px"
-                    />
+                    
                     <img
                         id="regenerate-button"
+                        class="button-disabled"
                         src="icons/Regenerate_Button.svg"
                         alt=""
-                        style="height: 28px; margin-top: -2px"
+                        style="height: 36px;"
                     />
-                    <span id="done-button">Done</span>
+                    <span class="button-disabled" id="done-button">Done</span>
                 `;
 
+                this.attachListeners(currentState);
+                break;
+
+            case "edit-selected":
+                this.navBarElement.innerHTML = `
+                <span id="cancel-button">Cancel</span>
+                
+                <img
+                    id="regenerate-button"
+                    src="icons/Regenerate_Button.svg"
+                    alt=""
+                    style="height: 36px;"
+                />
+                <span class="button-disabled" id="done-button">Done</span>
+            `;
+                this.attachListeners(currentState);
+                break;
+
+            case "regenerated":
+                this.navBarElement.innerHTML = `
+                <span id="cancel-button">Cancel</span>
+                
+                <img
+                    id="regenerate-button"
+                    src="icons/Regenerate_Button.svg"
+                    alt=""
+                    style="height: 36px;"
+                />
+                <span id="done-button">Done</span>
+            `;
                 this.attachListeners(currentState);
                 break;
         }
@@ -113,28 +140,38 @@ export class NavBar {
                         this.updateButtons();
                     });
 
-                const promptButton = this.navBarElement
-                    .querySelector("#prompt-button")
-                    .addEventListener("click", () => {
-                        console.log("Prompt button clicked");
-                    });
+                // const promptButton = this.navBarElement
+                //     .querySelector("#prompt-button")
+                //     .addEventListener("click", () => {
+                //         console.log("Prompt button clicked");
+                //     });
 
+                break;
+
+            case "edit-selected":
                 const regenerateButton = this.navBarElement
                     .querySelector("#regenerate-button")
                     .addEventListener("click", () => {
                         console.log("Regenerate button clicked");
-                        eventBus.dispatchEvent("triggerRegenerate");
+                        changeState(states.REGENERATED);
+                        this.switchActiveView();
+                        this.updateButtons();
+
+                        // eventBus.dispatchEvent("triggerRegenerate");
                     });
 
+                break;
+
+            case "regenerated":
                 const doneButton = this.navBarElement
                     .querySelector("#done-button")
                     .addEventListener("click", () => {
                         console.log("Done button clicked");
+
                         changeState(states.RESULT);
                         this.switchActiveView();
                         this.updateButtons();
                     });
-
                 break;
         }
     }
@@ -150,8 +187,9 @@ export class NavBar {
     }
 
     applyStyles() {
+        this.navBarElement.style.overflow = "visible";
         this.navBarElement.style.display = "flex";
-        this.navBarElement.style.justifyContent = "space-between";
+        // this.navBarElement.style.justifyContent = "space-between";
         this.navBarElement.style.position = "fixed";
         this.navBarElement.style.bottom = "75px";
         this.navBarElement.style.left = "0";
@@ -164,7 +202,7 @@ export class NavBar {
         // this.navBarElement.backgroundColor = "black";
 
         // Get the buttons inside the navbar
-        const buttons = this.navBarElement.querySelectorAll("button");
+        const buttons = this.navBarElement.children;
 
         // Apply the centering property to the second button
         if (buttons.length >= 2) {
@@ -174,3 +212,14 @@ export class NavBar {
         }
     }
 }
+
+//prompt button in case
+/*
+<img
+                        id="prompt-button"
+                        src="icons/Edit_Prompt.svg"
+                        alt=""
+                        style="height: 22px"
+                    />
+
+                    */

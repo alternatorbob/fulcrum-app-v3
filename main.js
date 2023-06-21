@@ -75,8 +75,9 @@ export async function switchActiveView(activeState = getState()) {
             homeDiv.style.display = "none";
 
             // await photoApp.getFaces("./vertical.jpg");
-            changeState(states.RESULT);
-            switchActiveView();
+            photoApp.setEditMode(false);
+            navBar.updateButtons();
+
             break;
 
         case "result":
@@ -85,10 +86,8 @@ export async function switchActiveView(activeState = getState()) {
             // const message = new SystemMessage("Tap a face to revert");
             // message.showFor(750);
 
-            photoApp.setEditMode(false);
             // navBar.render();
 
-            //call faceSwap api
             navBar.updateButtons();
 
             break;
@@ -102,8 +101,10 @@ export async function switchActiveView(activeState = getState()) {
 
             break;
 
-        case "edit-prompt":
+        case "edit-selected":
             console.log(`Current View: ${activeState}`);
+
+            navBar.updateButtons();
 
             break;
     }

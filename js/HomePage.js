@@ -61,6 +61,9 @@ export class HomePage {
         homePageDiv.appendChild(logoDiv.element);
 
         const buttonsDiv = new DivComponent("div", ["home-screen-buttons"], {});
+        buttonsDiv.element.style.display = "flex";
+        buttonsDiv.element.style.marginTop = "auto";
+        buttonsDiv.element.style.marginBottom = "96px";
 
         const cameraButtonDiv1 = new DivComponent("div", ["camera-button"], {
             style: 'display: "flex"; flexDirection: "column"; alignItems: "center"; width: "38vw";',

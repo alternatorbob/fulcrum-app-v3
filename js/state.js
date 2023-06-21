@@ -3,13 +3,13 @@ export const states = {
     DETECTIONS: "detections",
     RESULT: "result",
     EDIT: "edit",
-    EDITPROMPT: "edit-prompt",
+    EDITSELECTED: "edit-selected",
+    REGENERATED: "regenerated",
 };
 
 let currState = states.HOME;
 
 export function changeState(newState) {
-
     document.body.dataset.state = newState;
 
     currState = newState;
