@@ -80,6 +80,7 @@ export class Face {
         this.parent.appendChild(this.elem);
 
         this.elem.onclick = async (e) => {
+            let id, number;
             switch (getState()) {
                 case "result":
                     // this.faceEnabled = !this.faceEnabled;
@@ -90,8 +91,40 @@ export class Face {
                 case "edit":
                     this.scope.resetBoundingBoxes();
 
-                    const id = e.target.id;
-                    const number = getNumberFromString(id);
+                    console.log(e.target);
+
+                    id = e.target.id;
+                    // console.log("face that was clicked: ", id);
+                    number = getNumberFromString(id);
+
+                    this.scope.setLastClickedFace(number);
+
+                    this.toggleSelection();
+                    this.refreshCanvas();
+                    break;
+                case "edit-selected":
+                    this.scope.resetBoundingBoxes();
+
+                    console.log(e.target);
+
+                    id = e.target.id;
+                    // console.log("face that was clicked: ", id);
+                    number = getNumberFromString(id);
+
+                    this.scope.setLastClickedFace(number);
+
+                    this.toggleSelection();
+                    this.refreshCanvas();
+                    break;
+                    
+                case "regenerated":
+                    this.scope.resetBoundingBoxes();
+
+                    console.log(e.target);
+
+                    id = e.target.id;
+                    // console.log("face that was clicked: ", id);
+                    number = getNumberFromString(id);
 
                     this.scope.setLastClickedFace(number);
 
@@ -202,12 +235,10 @@ export class Face {
         return tempCanvas;
     }
 
-    setRegeneratedFace(image) {
-        console.log("SET RENGENERATED FACE", image);
-    }
-
-    setSwappedFace(image) {
+    setSwappedFace(image, id) {
         console.log("SET SWAPPED FACE", image);
+
+        // console.log("this.scaledBounds", this.scaledBounds);
 
         let size = Math.max(this.scaledBounds.width, this.scaledBounds.height);
 
@@ -231,7 +262,7 @@ export class Face {
         const ctx = this.result.getContext("2d");
         // ctx.imageSmoothingEnabled = true;
 
-        this.result.id = `result-${Face.instanceCount}`;
+        this.result.id = `result-${id}`;
 
         this.result.width = size;
         this.result.height = size;

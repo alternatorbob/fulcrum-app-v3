@@ -38,7 +38,7 @@ export class NavBar {
                         src="/icons/Download_Button.svg"
                         alt=""
                         style="
-                            height: 36px;
+                            height: 36px; overflow: visible; 
                         "
                     />
 
@@ -57,8 +57,8 @@ export class NavBar {
                         class="button-disabled"
                         src="icons/Regenerate_Button.svg"
                         alt=""
-                        style="height: 36px;"
-                    />
+                        style="height: 36px; overflow: visible; "
+                        />
                     <span class="button-disabled" id="done-button">Done</span>
                 `;
 
@@ -73,7 +73,7 @@ export class NavBar {
                     id="regenerate-button"
                     src="icons/Regenerate_Button.svg"
                     alt=""
-                    style="height: 36px;"
+                    style="height: 36px; overflow: visible; "
                 />
                 <span class="button-disabled" id="done-button">Done</span>
             `;
@@ -88,7 +88,7 @@ export class NavBar {
                     id="regenerate-button"
                     src="icons/Regenerate_Button.svg"
                     alt=""
-                    style="height: 36px;"
+                    style="height: 36px; overflow: visible; "
                 />
                 <span id="done-button">Done</span>
             `;
@@ -99,8 +99,19 @@ export class NavBar {
 
     attachListeners(currentState) {
         switch (currentState) {
+            case "detections":
+                const cancelButton0 = this.navBarElement
+                    .querySelector("#cancel-button")
+                    .addEventListener("click", () => {
+                        console.log("Cancel button clicked");
+                        changeState(states.HOME);
+                        this.switchActiveView(); // Trigger the switchActiveView callback
+                        this.updateButtons();
+                    });
+                break;
+
             case "result":
-                const cancelButton = this.navBarElement
+                const cancelButton1 = this.navBarElement
                     .querySelector("#cancel-button")
                     .addEventListener("click", () => {
                         console.log("Cancel button clicked");
@@ -122,12 +133,14 @@ export class NavBar {
                     .addEventListener("click", () => {
                         console.log("Edit button clicked");
                         // console.log(this.switchActiveView);
+
                         changeState(states.EDIT);
                         this.switchActiveView(); // Trigger the switchActiveView callback
                         this.updateButtons();
 
                         // Dispatch the toggleEnable event through the EventBus
                         eventBus.dispatchEvent("toggleEnable");
+                        eventBus.dispatchEvent("storeResults");
                     });
                 break;
 
@@ -149,20 +162,52 @@ export class NavBar {
                 break;
 
             case "edit-selected":
+                const cancelButton3 = this.navBarElement
+                    .querySelector("#cancel-button")
+                    .addEventListener("click", () => {
+                        changeState(states.EDIT);
+                        this.switchActiveView();
+                        this.updateButtons();
+                    });
+
                 const regenerateButton = this.navBarElement
                     .querySelector("#regenerate-button")
                     .addEventListener("click", () => {
                         console.log("Regenerate button clicked");
                         changeState(states.REGENERATED);
+
                         this.switchActiveView();
                         this.updateButtons();
 
-                        // eventBus.dispatchEvent("triggerRegenerate");
+                        eventBus.dispatchEvent("triggerRegenerate");
                     });
 
                 break;
 
             case "regenerated":
+                const cancelButton4 = this.navBarElement
+                    .querySelector("#cancel-button")
+                    .addEventListener("click", () => {
+                        changeState(states.RESULT);
+                        this.switchActiveView();
+                        this.updateButtons();
+
+                        eventBus.publish("setEditMode", false);
+                        eventBus.dispatchEvent("restoreFaces");
+                    });
+
+                const regenerateButton2 = this.navBarElement
+                    .querySelector("#regenerate-button")
+                    .addEventListener("click", () => {
+                        console.log("Regenerate button clicked");
+                        // changeState(states.REGENERATED);
+
+                        this.switchActiveView();
+                        this.updateButtons();
+
+                        eventBus.dispatchEvent("triggerRegenerate");
+                    });
+
                 const doneButton = this.navBarElement
                     .querySelector("#done-button")
                     .addEventListener("click", () => {
@@ -187,29 +232,19 @@ export class NavBar {
     }
 
     applyStyles() {
-        this.navBarElement.style.overflow = "visible";
-        this.navBarElement.style.display = "flex";
-        // this.navBarElement.style.justifyContent = "space-between";
-        this.navBarElement.style.position = "fixed";
-        this.navBarElement.style.bottom = "75px";
-        this.navBarElement.style.left = "0";
-        this.navBarElement.style.right = "0";
-        this.navBarElement.style.margin = "auto";
-        this.navBarElement.style.color = "white";
-        this.navBarElement.style.padding = "20px";
-        this.navBarElement.style.overflow = "hidden"; // Hide overflowing pseudo-element
-
-        // this.navBarElement.backgroundColor = "black";
-
-        // Get the buttons inside the navbar
-        const buttons = this.navBarElement.children;
-
-        // Apply the centering property to the second button
-        if (buttons.length >= 2) {
-            buttons[1].style.marginLeft = "auto";
-            buttons[1].style.marginRight = "auto";
-            buttons[1].style.transform = "translateY(-15px)";
-        }
+        const elem = this.navBarElement;
+        elem.style.overflow = "visible";
+        elem.style.display = "flex";
+        // elem.style.justifyContent = "space-between";
+        elem.style.position = "fixed";
+        elem.style.bottom = "75px";
+        elem.style.left = "0";
+        elem.style.height = '36px'
+        elem.style.right = "0";
+        elem.style.margin = "auto";
+        elem.style.color = "white";
+        elem.style.padding = "20px";
+        elem.style.overflow = "hidden"; // Hide overflowing pseudo-element
     }
 }
 

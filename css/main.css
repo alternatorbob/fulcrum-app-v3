@@ -47,6 +47,7 @@ body {
     font-family: "Diatype Regular";
     font-size: 1em;
 
+    overflow: hidden;
     touch-action: manipulation;
 }
 
@@ -97,6 +98,6 @@ canvas {
     display: flex;
 }
 
-.face img.hidden{
-    display:none;
+.face img.hidden {
+    display: none;
 }

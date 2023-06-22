@@ -10,8 +10,10 @@ import {
     IntroTransition,
     addButtonComponents,
     SystemMessage,
+    removeUiElements,
 } from "./js/UI";
 import { NavBar2 } from "./js/NavBar2";
+import { globalControls } from "./globalControls";
 
 const loadModel = () => {
     return Promise.all([
@@ -61,7 +63,9 @@ export async function switchActiveView(activeState = getState()) {
             homeDiv.style.display = "flex";
             photoDiv.classList.add("hidden");
 
+            homePage.emptyInputFiles();
             photoApp.clearAll();
+            removeUiElements();
 
             // await delay(3000);
             // changeState(states.DETECTIONS);
@@ -87,6 +91,7 @@ export async function switchActiveView(activeState = getState()) {
             // message.showFor(750);
 
             // navBar.render();
+            photoApp.setEditMode(false);
 
             navBar.updateButtons();
 
@@ -97,7 +102,7 @@ export async function switchActiveView(activeState = getState()) {
             photoApp.setEditMode(true);
 
             const message = new SystemMessage("tap a face to edit");
-            message.showFor(3000);
+            message.showFor(globalControls.systemMessageDuration);
 
             break;
 

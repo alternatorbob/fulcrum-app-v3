@@ -50,8 +50,8 @@ body[data-state="result"] {
     text-align: center;
     align-self: center;
 
-    border: 0.8px solid #f5f5f5;
-    border-radius: 100px;
+    border: 1px solid #f5f5f5;
+    border-radius: 50px;
     background: none;
     color: #f5f5f5;
 

@@ -1,3 +1,6 @@
+import { globalControls } from "../globalControls";
+import { inPaint } from "./replicate";
+
 export function cropCanvas(sourceCanvas, x, y, width, height) {
     const croppedCanvas = document.createElement("canvas");
 
@@ -254,3 +257,74 @@ export const scaleValueUp = (value, percentage) =>
 
 export const scaleValueDown = (value, percentage) =>
     value * (1 - Math.abs(percentage) / 100);
+
+if (globalControls.keepItHot) window.addEventListener("load", keepItHot);
+
+export async function keepItHot() {
+    // console.log("keepin it hot");
+    const formData = new FormData();
+
+    const prompt =
+        "a bottle of french wine, detailed, beautiful typography, classy, traditional, expensive wine";
+    const size = 64;
+
+    const image = await getImageAsBase64("/keepItHot/bottle.jpg");
+    const mask = await getImageAsBase64("/keepItHot/mask.jpg");
+
+    // console.log("image: ", image, "mask: ", mask);
+    // return;
+
+    formData.append("prompt", prompt);
+    formData.append("edit_image", image);
+    formData.append("mask", mask);
+    formData.append("width", size);
+    formData.append("height", size);
+
+    const { id } = await fetch("/api/inpaint", {
+        method: "POST",
+        body: formData,
+    }).then((res) => res.json());
+
+    let succeeded = false;
+    let output;
+
+    while (!succeeded) {
+        const data = await fetch(`/api/${id}`).then((res) => res.json());
+
+        // succeeded = true;
+        if (data.status === "succeeded") {
+            succeeded = true;
+            output = data.output[0];
+
+            break;
+        } else {
+            // console.log(data.logs);
+            console.log("keepin it hot");
+        }
+
+        await delay(750);
+    }
+
+    // Wait for 5 minutes before calling the function again
+    // await new Promise((resolve) => setTimeout(resolve, 30 * 1000));
+    await new Promise((resolve) => setTimeout(resolve, 5 * 60 * 1000));
+
+    // Call the function again
+    await keepItHot();
+}
+
+async function getImageAsBase64(imagePath) {
+    try {
+        const response = await fetch(imagePath);
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (error) {
+        console.error("Error fetching image:", error);
+        throw error;
+    }
+}

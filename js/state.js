@@ -8,10 +8,12 @@ export const states = {
 };
 
 let currState = states.HOME;
+let prevState = null;
 
 export function changeState(newState) {
     document.body.dataset.state = newState;
 
+    prevState = currState;
     currState = newState;
 }
 
@@ -21,4 +23,8 @@ export function isState(state) {
 
 export function getState() {
     return currState;
+}
+
+export function getPreviousState() {
+    return prevState;
 }

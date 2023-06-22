@@ -99,7 +99,7 @@ export class SystemMessage {
     calculateWidth() {
         const textLength = this.text.length;
         const averageCharacterWidth = 10; // Assuming an average width of 10 pixels per character
-        const minWidth = 120; // Minimum width of the message
+        const minWidth = 60; // Minimum width of the message
         return Math.max(minWidth, textLength * averageCharacterWidth);
     }
 
@@ -107,7 +107,7 @@ export class SystemMessage {
         const divWidth = this.calculateWidth();
 
         this.message.style.position = "fixed";
-        this.message.style.top = "60px";
+        this.message.style.top = "50px";
         this.message.style.left = `calc(50% - ${divWidth / 2}px)`;
         this.message.style.zIndex = "9999";
         this.message.style.background = "black";
@@ -151,7 +151,7 @@ export class Loader {
         loaderDiv.className = "lds-spinner";
         loaderDiv.style.position = "absolute";
         loaderDiv.style.left = `calc(50% - ${39.5}px)`;
-        this.loaderElement.style.bottom = "84px";
+        this.loaderElement.style.bottom = "90px";
 
         // loaderDiv.style.left = "50%";
         loaderDiv.style.zIndex = "1000";
@@ -364,18 +364,18 @@ export class IntroTransition {
     }
 }
 
-// window.ScreenOrientation.onchange = function (e) {
-//     if (window.screen.orientation.type.includes("landscape")) {
-//         document.body.style.backgroundColor = "white";
-//     } else if (window.screen.orientation.type.includes("portrait")) {
-//         document.body.style.backgroundColor = "black";
-//     }
-// };
+export function removeUiElements() {
+    const loaders = document.querySelectorAll(".lds-spinner");
+    const messages = document.querySelectorAll(".system-message");
 
-// window.screen.orientation.onchange = function () {
-//     if (window.screen.orientation.type.includes("landscape")) {
-//         document.body.style.backgroundColor = "blue";
-//     } else if (window.screen.orientation.type.includes("portrait")) {
-//         document.body.style.backgroundColor = "black";
-//     }
-// };
+    if (loaders.length > 0) {
+        loaders.forEach((loader) => {
+            loader.classList.add("hidden");
+        });
+    }
+    if (messages.length > 0) {
+        messages.forEach((loader) => {
+            loader.classList.add("hidden");
+        });
+    }
+}

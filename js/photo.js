@@ -1,17 +1,19 @@
 import * as faceapi from "face-api.js";
 import { emulateLoader, getNumberFromString, loadImage, random } from "./utils";
-import { Face } from "./internal";
+import { Face, HomePage } from "./internal";
 import { Loader, SystemMessage } from "./UI";
 import {
     drawCanvasToCanvas,
     createMaskCanvas,
     invertColors,
     drawImageToCanvas,
+    copyCanvas,
 } from "./drawUtils";
 import eventBus from "./EventBus";
 import { states, changeState } from "./state";
 import { inPaint } from "./replicate";
 import { AnimatedCircles } from "./AnimatedCircles";
+import { globalControls } from "../globalControls";
 
 export class Photo {
     constructor(parent, switchActiveView) {
@@ -31,6 +33,7 @@ export class Photo {
         this.parent = parent;
         this.faces = [];
         this.swappedFaces = [];
+        this.storedResults = [];
         this.cv = canvas;
         this.c = canvas.getContext("2d");
         this.img = null;
@@ -40,6 +43,7 @@ export class Photo {
         this.lastClickedFaceId = null;
 
         eventBus.subscribe("fileSelected", this.getFaces.bind(this));
+        eventBus.subscribe("setEditMode", this.setEditMode.bind(this));
 
         eventBus.addEventListener("downloadResult", () => {
             this.downloadResult();
@@ -47,6 +51,14 @@ export class Photo {
 
         eventBus.addEventListener("triggerRegenerate", () => {
             this.triggerRegenerate();
+        });
+
+        eventBus.addEventListener("storeResults", () => {
+            this.storeResults();
+        });
+
+        eventBus.addEventListener("restoreFaces", () => {
+            this.restoreFaces();
         });
     }
 
@@ -66,6 +78,13 @@ export class Photo {
         detections = detections.filter(({ detection }) => {
             return detection._score > 0.6;
         });
+
+        if (detections.length < 1) {
+            const message = new SystemMessage("No face were detected");
+            message.showFor(globalControls.systemMessageDuration);
+            loader.hide();
+            return;
+        }
 
         let highestValue = 0;
         let chosenExpression = null;
@@ -110,6 +129,8 @@ export class Photo {
                 const { bounds, features } = faceObj;
                 const face = new Face(bounds, features, this.photoView, this);
 
+                console.log("initial faces", face);
+
                 // const scaledBounds = face.canvasToViewport(
                 //     bounds,
                 //     this.cv,
@@ -125,7 +146,7 @@ export class Photo {
 
                 // animatedCircles.hide();
 
-                face.setSwappedFace(result);
+                face.setSwappedFace(result, face.id);
 
                 face.refreshCanvas = () => this.render();
 
@@ -141,8 +162,27 @@ export class Photo {
         this.setEditMode(this.editMode);
 
         const message = new SystemMessage("tap face to keep original");
-        message.showFor(3000);
+        message.showFor(globalControls.systemMessageDuration);
         // message.show()
+    }
+
+    storeResults() {
+        console.log("storeResults");
+        this.swappedFaces.forEach((face) => {
+            this.storedResults.push({
+                result: copyCanvas(face.result),
+                id: face.id,
+            });
+        });
+    }
+
+    restoreFaces() {
+        console.log("restoreFaces");
+
+        this.faces.forEach((face, index) => {
+            const { result, id } = this.storedResults[index];
+            face.setSwappedFace(result, id);
+        });
     }
 
     setLastClickedFace(id) {
@@ -150,11 +190,11 @@ export class Photo {
         this.switchActiveView();
 
         this.swappedFaces.forEach((face) => {
-            console.log(face);
-
             const faceId = getNumberFromString(face.elem.id);
 
             if (faceId === id) {
+                console.log("lastClickedFace: ", face);
+
                 this.lastClickedFace = face;
                 this.lastClickedFaceId = id;
                 return;
@@ -163,11 +203,17 @@ export class Photo {
     }
 
     triggerRegenerate() {
-        this.faces.forEach((face) => {
+        this.faces.forEach(async (face) => {
             const faceId = getNumberFromString(face.elem.id);
 
             if (faceId === this.lastClickedFaceId) {
-                this.regenerateFace(face);
+                console.log("faceId", faceId);
+                console.log("this.lastClickedFaceId", this.lastClickedFaceId);
+                console.log("face to generate", face);
+
+                this.switchActiveView();
+
+                await this.regenerateFace(face);
                 return;
             }
         });
@@ -199,31 +245,39 @@ export class Photo {
 
         // return scaledSquareCanvas;
 
-        await emulateLoader(500);
-        let output = invertColors(squareCanvas);
-        loader.hide();
-        return output;
+        if (globalControls.debugAPI) {
+            await emulateLoader(globalControls.delayTime);
+            let output = invertColors(squareCanvas);
+            loader.hide();
+            return output;
+        } else {
+            const url = await inPaint(
+                faceImage,
+                maskImage,
+                face.prompt,
+                (value) => {
+                    const lines = value.split("\n").filter(Boolean);
+                    const lastLine = lines[lines.length - 1];
+                    let number = 0;
+                    if (lastLine) number = Number(lastLine.split("%")[0]);
+                    // console.log("number: ", number);
+                    console.log("value: ", value);
+                }
+            );
 
-        const url = await inPaint(
-            faceImage,
-            maskImage,
-            face.prompt,
-            (value) => {
-                const lines = value.split("\n").filter(Boolean);
-                const lastLine = lines[lines.length - 1];
-                let number = 0;
-                if (lastLine) number = Number(lastLine.split("%")[0]);
-                // console.log("number: ", number);
-                console.log("value: ", value);
-            }
-        );
-
-        loader.hide();
-        return loadImage(url);
+            loader.hide();
+            return loadImage(url);
+        }
     }
 
     async regenerateFace(face) {
         console.log("from regenerateFace: ", face);
+
+        const button = document.querySelector("#regenerate-button");
+
+        console.log("button: ", button);
+
+        button.style.display = "none";
 
         const prototype = Object.getPrototypeOf(face);
 
@@ -233,34 +287,42 @@ export class Photo {
         const loader = new Loader("swapping");
         loader.show();
 
-        let output = invertColors(face.squareCanvas);
-        console.log("face.squareCanvas: ", face.squareCanvas);
-        loader.hide();
+        let output;
 
-        console.log("output", output);
+        if (globalControls.debugAPI) {
+            await emulateLoader(globalControls.delayTime);
+            output = invertColors(face.squareCanvas);
+            loader.hide();
 
-        prototype.setSwappedFace.call(this, output);
+            // prototype.setSwappedFace.call(this, output);
+            face.setSwappedFace(output, face.id);
+            setTimeout(() => {
+                button.style.display = "flex";
+            }, 175);
+            return output;
+        } else {
+            const url = await inPaint(
+                face.faceImage,
+                face.maskImage,
+                face.prompt,
+                (value) => {
+                    const lines = value.split("\n").filter(Boolean);
+                    const lastLine = lines[lines.length - 1];
+                    let number = 0;
+                    if (lastLine) number = Number(lastLine.split("%")[0]);
+                    // console.log("number: ", number);
+                    console.log("value: ", value);
+                }
+            );
 
-        return output;
+            output = await loadImage(url);
 
-        const url = await inPaint(
-            faceImage,
-            maskImage,
-            face.prompt,
-            (value) => {
-                const lines = value.split("\n").filter(Boolean);
-                const lastLine = lines[lines.length - 1];
-                let number = 0;
-                if (lastLine) number = Number(lastLine.split("%")[0]);
-                // console.log("number: ", number);
-                console.log("value: ", value);
-            }
-        );
-
-        loader.hide();
-        return loadImage(url);
-
-        prototype.setSwappedFace.call(result);
+            face.setSwappedFace(output, face.id);
+            loader.hide();
+            setTimeout(() => {
+                button.style.display = "flex";
+            }, 175);
+        }
     }
 
     getResult(faces) {
@@ -286,9 +348,6 @@ export class Photo {
 
         link.href = this.cv.toDataURL();
         link.download = "made_with_FULCRUM.png";
-
-        // console.log("result: ", result);
-        console.log("link: ", link);
 
         link.click();
     }

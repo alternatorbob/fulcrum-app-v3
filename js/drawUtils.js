@@ -227,3 +227,22 @@ export function invertColors(canvas) {
     // Return the inverted canvas
     return invertedCanvas;
 }
+
+export function copyCanvas(originalCanvas) {
+    // Create a new canvas element
+    const copiedCanvas = document.createElement("canvas");
+
+    // Set the width and height of the new canvas to match the original canvas
+    copiedCanvas.width = originalCanvas.width;
+    copiedCanvas.height = originalCanvas.height;
+
+    // Get the 2D rendering context for both canvases
+    const originalCtx = originalCanvas.getContext("2d");
+    const copiedCtx = copiedCanvas.getContext("2d");
+
+    // Copy the contents of the original canvas to the new canvas
+    copiedCtx.drawImage(originalCanvas, 0, 0);
+
+    // Return the copied canvas
+    return copiedCanvas;
+}
