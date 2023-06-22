@@ -1,5 +1,5 @@
 export const globalControls = {
-    debugAPI: false,
+    debugAPI: true,
     keepItHot: false,
 
     maskRadiusFactor: 1.0,

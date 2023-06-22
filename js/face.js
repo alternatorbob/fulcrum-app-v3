@@ -56,7 +56,11 @@ export class Face {
 
             // console.log(xyOffset, whOffset);
 
-            this.elem.style.cssText = `top: ${this.scaledBounds.y}px; left: ${this.scaledBounds.x}px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px`;
+            this.elem.style.cssText = `top: ${
+                this.scaledBounds.y - 2
+            }px; left: ${this.scaledBounds.x}px; width: ${
+                this.scaledBounds.width
+            }px; height: ${this.scaledBounds.height}px`;
             // this.elem.style.cssText = `top: ${xyOffset.y}px; left: ${xyOffset.x}px; width: ${whOffset.w}px; height: ${whOffset.h}px`;
 
             const { x, y, width, height } = this.cvBounds;
@@ -116,7 +120,7 @@ export class Face {
                     this.toggleSelection();
                     this.refreshCanvas();
                     break;
-                    
+
                 case "regenerated":
                     this.scope.resetBoundingBoxes();
 
@@ -208,6 +212,8 @@ export class Face {
     cropToSquare(canvas, bounds) {
         const { x, y, width, height } = bounds;
 
+        // let sWidth =
+
         const size = Math.max(width, height);
 
         const squareCanvas = document.createElement("canvas");
@@ -217,7 +223,7 @@ export class Face {
         squareCanvas.height = size;
 
         const ctx = squareCanvas.getContext("2d");
-        ctx.imageSmoothingEnabled = true;
+        // ctx.imageSmoothingEnabled = true;
         ctx.drawImage(canvas, x, y, size, size, 0, 0, size, size);
 
         return squareCanvas;
@@ -229,7 +235,7 @@ export class Face {
         tempCanvas.width = tempCanvas.height = size;
 
         const ctx = tempCanvas.getContext("2d");
-        ctx.imageSmoothingEnabled = true;
+        // ctx.imageSmoothingEnabled = true;
         ctx.drawImage(canvas, 0, 0, size, size);
 
         return tempCanvas;
@@ -241,6 +247,7 @@ export class Face {
         // console.log("this.scaledBounds", this.scaledBounds);
 
         let size = Math.max(this.scaledBounds.width, this.scaledBounds.height);
+        // let size = Math.max(this.scaledBounds.width, this.scaledBounds.height);
 
         const percentage = calculatePercentageChange(
             this.scaledBounds.width,
@@ -264,11 +271,11 @@ export class Face {
 
         this.result.id = `result-${id}`;
 
-        this.result.width = size;
-        this.result.height = size;
+        this.result.width = this.squareCanvas.width;
+        this.result.height = this.squareCanvas.height;
 
         // this.result.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${this.scaledBounds.width}px; height: ${this.scaledBounds.height}px;`;
-        this.result.style.cssText = `position: absolute; top: 0px; left: 0px; width: ${size}px; height: ${size}px;`;
+        this.result.style.cssText = `position: absolute; top: -2.5px; left: 0px; width: ${size}px; height: ${size}px;`;
 
         // featherEdges(this.result);
 

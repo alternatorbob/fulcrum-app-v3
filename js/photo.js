@@ -143,6 +143,8 @@ export class Photo {
                 // animatedCircles.show();
 
                 const result = await this.swapFace(face, features);
+                // result.width = face.squareCanvas.width;
+                // result.height = face.squareCanvas.height;
 
                 // animatedCircles.hide();
 
@@ -224,6 +226,9 @@ export class Photo {
         loader.show();
 
         const squareCanvas = face.cropToSquare(this.cv, face.cvBounds);
+
+        console.log("squareCanvas.width", "squareCanvas.height");
+        console.log(squareCanvas.width, squareCanvas.height);
         face.squareCanvas = squareCanvas;
 
         const maskCanvas = createMaskCanvas(face, squareCanvas);
