@@ -19,15 +19,7 @@ export class NavBar {
         const currentState = getState();
 
         switch (currentState) {
-            case "detections":
-                this.navBarElement.innerHTML = `
-                <span id="cancel-button">Cancel</span>
-                <span></span>
-                
-            `;
-
-                this.attachListeners(currentState);
-                break;
+         
 
             case "result":
                 this.navBarElement.innerHTML = `
@@ -175,6 +167,8 @@ export class NavBar {
                     .addEventListener("click", () => {
                         console.log("Regenerate button clicked");
                         changeState(states.REGENERATED);
+
+                        
 
                         this.switchActiveView();
                         this.updateButtons();

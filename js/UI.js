@@ -157,7 +157,7 @@ export class Loader {
         loaderDiv.style.zIndex = "1000";
 
         textContainer.style.position = "absolute";
-        textContainer.style.fontSize = "0.8em";
+        textContainer.style.fontSize = "0.6em";
         textContainer.style.zIndex = "1000";
         textContainer.style.pointerEvents = "none";
         textContainer.style.top = "65%";

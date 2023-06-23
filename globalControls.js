@@ -1,9 +1,9 @@
 export const globalControls = {
-    debugAPI: true,
+    debugAPI: false,
     keepItHot: false,
 
     maskRadiusFactor: 1.0,
-    resultResolution: 128,
+    resultResolution: 512,
     resultResolutionObject: {
         vlow: 64,
         low: 128,

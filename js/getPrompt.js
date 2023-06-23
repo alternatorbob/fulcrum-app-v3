@@ -18,7 +18,7 @@ export function getPrompt(promptDetails) {
 }
 
 export const negative_prompt = `
-    eyes closed, deformed iris, deformed pupils, deformed eyelids, crooked eyes,
+    eyes closed, deformed iris, deformed pupils, deformed eyelids, crooked eyes, tilted eyes, crooked eyebrows, strabism,
     bad teeth, crooked teeth,
     nude, naked, NSFW,
     bad quality, low quality, poorly drawn face,

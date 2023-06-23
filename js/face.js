@@ -267,6 +267,8 @@ export class Face {
         // console.log("size after: ", size);
 
         const ctx = this.result.getContext("2d");
+        ctx.filter = "brightness(150%)";
+
         // ctx.imageSmoothingEnabled = true;
 
         this.result.id = `result-${id}`;

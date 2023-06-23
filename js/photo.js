@@ -76,7 +76,7 @@ export class Photo {
             .withFaceExpressions();
 
         detections = detections.filter(({ detection }) => {
-            return detection._score > 0.6;
+            return detection._score > 0.4;
         });
 
         if (detections.length < 1) {

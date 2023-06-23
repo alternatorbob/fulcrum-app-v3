@@ -261,7 +261,7 @@ export const scaleValueDown = (value, percentage) =>
 if (globalControls.keepItHot) window.addEventListener("load", keepItHot);
 
 export async function keepItHot() {
-    // console.log("keepin it hot");
+    console.log("keepin it hot");
     const formData = new FormData();
 
     const prompt =
@@ -307,7 +307,7 @@ export async function keepItHot() {
 
     // Wait for 5 minutes before calling the function again
     // await new Promise((resolve) => setTimeout(resolve, 30 * 1000));
-    await new Promise((resolve) => setTimeout(resolve, 5 * 60 * 1000));
+    await new Promise((resolve) => setTimeout(resolve, 3 * 60 * 1000));
 
     // Call the function again
     await keepItHot();
